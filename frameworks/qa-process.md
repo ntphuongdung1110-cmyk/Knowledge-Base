@@ -1,6 +1,6 @@
 # QA Process — Quy trình hoạt động
 
-**Owner:** QA Manager | **Tạo:** 2026-05-08
+**Owner:** QA Manager | **Tạo:** 2026-05-08 | **Cập nhật:** 2026-05-08
 **Áp dụng:** QA team + stakeholders (Dev Lead, QC Manager, PM)
 
 ---
@@ -17,34 +17,31 @@ QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
 ║  SPRINT (2 tuần — lặp liên tục)                                  ║
 ║  ┌────────────────────────────────────────────────────────┐      ║
 ║  │                                                        │      ║
-║  │  Dev ──[SA0–SA5+DoR]──► QC ──[sweep/sample]──►  (??) │      ║
-║  │                                                   ↑   │      ║
-║  │                                    QA SPOT-CHECK ─┘   │      ║
-║  │                               (ngẫu nhiên, bất kỳ lúc)│      ║
+║  │  Dev──[SA0–SA5+DoR]──► QC──[sweep]──► QA ROLLING AUDIT│      ║
+║  │                                       (ngay khi ticket │      ║
+║  │                                        QC approve)     │      ║
+║  │  Grooming → Planning → Daily → Review → Retro          │      ║
+║  │  [QA]       [QA 30']            [QA]   [QA khi cần]   │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
 ║                              │                                   ║
-║                    Tích lũy findings                             ║
-║                              │                                   ║
-║  TRƯỚC MỖI TIER 1 RELEASE    ▼                                   ║
-║  ┌────────────────────────────────────────────────────────┐      ║
-║  │                                                        │      ║
-║  │  L1: Dev evidence audit ──┐                           │      ║
-║  │  L2: QC work audit ───────┼──► QA REPORT              │      ║
-║  │  L3: Smoke test STG ──────┘         │                 │      ║
-║  │                                     ▼                 │      ║
-║  │                          ┌──── GO / NO-GO ────┐       │      ║
-║  │                          ▼          ▼          ▼       │      ║
-║  │                         GO      GO+COND     NO-GO      │      ║
-║  │                          │          │          │        │      ║
-║  │                        Deploy   Deploy     Dev/QC fix   │      ║
-║  │                                  +doc    → re-audit     │      ║
-║  └────────────────────────────────────────────────────────┘      ║
-║                              │                                   ║
-║                     Production (24h monitor)                     ║
-║                              │                                   ║
-║  KHI CÓ BUG PRODUCTION       ▼                                   ║
-║  ┌────────────────────────────────────────────────────────┐      ║
-║  │  QA Process RCA → Tìm bước bị miss → Update checklist │      ║
+║  TRƯỚC RELEASE               │                                   ║
+║  ┌───────────────────────────▼────────────────────────────┐      ║
+║  │  T-5: Early Warning Scan (30 phút)                      │      ║
+║  │  T-1: Finalize report (rolling done → chỉ compile)      │      ║
+║  │  R-day sáng: Smoke test STG (1–2 giờ)                   │      ║
+║  │  R-day trưa: Go/No-Go → Deploy                          │      ║
+║  │                ┌──────────┼──────────┐                  │      ║
+║  │               GO       GO+COND    NO-GO                 │      ║
+║  └────────────────┼─────────┼──────────┼───────────────────┘      ║
+║                   │         │          │                          ║
+║              Deploy    Deploy+doc   Dev/QC fix                   ║
+║              Prod       risk        → re-audit                   ║
+║                   │                                              ║
+║  PRODUCTION       │                                              ║
+║  ┌────────────────▼───────────────────────────────────────┐      ║
+║  │  QC smoke test production (≤15 phút)                   │      ║
+║  │  QA monitor 24h đầu (error rate, bug reports)          │      ║
+║  │  Nếu bug → QA Post-Incident RCA                        │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
 ║                                                                  ║
 ║  QUARTERLY (tháng 3 / 6 / 9 / 12)                                ║
@@ -56,94 +53,251 @@ QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
 
 ---
 
-## Quy trình 1 — Spot-check trong Sprint
+## Môi trường: STG vs Production
+
+**QA audit và gate chỉ diễn ra trên STG. Production có verification riêng nhưng không phải QA audit.**
+
+```
+                    STG                      PRODUCTION
+                 ─────────                  ───────────
+
+Layer 1          ✅ Document review          ❌ Không cần
+(Dev evidence)   (không cần môi trường)
+
+Layer 2          ✅ TC review                ❌ Không cần
+(QC work)        (không cần môi trường)
+
+Layer 3          ✅ QA Smoke test            ❌ QA không test
+(Smoke test)     → Go/No-Go decision          ở đây
+
+Post-deploy      ─────────────────────      ✅ QC smoke test
+verification                                (≤15 phút, critical flows)
+                                            QA nhận kết quả + monitor 24h
+```
+
+**Lý do QA không audit trên Production:**
+- Data thật → test = tạo transaction thật, ảnh hưởng user thật
+- QA gate là pre-deploy — quyết định GO/NO-GO phải xảy ra TRƯỚC deploy
+- Nếu phát hiện vấn đề sau deploy chỉ còn rollback
+
+> **Lưu ý:** STG phải mirror Production đủ để audit có giá trị. Cần confirm với Dev: STG dùng real API hay mock? Config (payment, voucher rules) có sync với Production không?
+
+---
+
+## Agile Ceremony — QA tham gia buổi nào?
+
+```
+SPRINT CEREMONIES
+─────────────────────────────────────────────────────────────────
+
+  Grooming       Planning     Daily      Review      Retro
+  ─────────       ────────    ──────    ────────    ──────
+  ✅ Attend       ✅ 30'      ❌ Không  ✅ Attend   ⚡ Khi cần
+  (full)          đầu
+
+  Release Planning (ngoài sprint)
+  ─────────────────────────────
+  ✅ Bắt buộc — đặt audit window vào lịch release
+```
+
+### Chi tiết từng ceremony
+
+**Grooming** ✅ — QA tham gia đầy đủ
+
+Đây là buổi quan trọng nhất để QA tham gia sớm. QA làm gì:
+- Flag risk sớm: "ticket này có financial flow → cần Tier 1 audit"
+- Clarify DoD: acceptance criteria cần cụ thể để QA audit được
+- Xác nhận evidence nào cần chuẩn bị (SA pipeline, SonarQube)
+- Input vào estimate: ticket phức tạp → QA estimate thêm 30–60 phút audit
+
+**Sprint Planning** ✅ — QA tham gia 30 phút đầu
+
+Mục đích: biết scope sprint để plan rolling audit calendar.
+- Xem danh sách tickets được commit vào sprint
+- Estimate tổng QA audit time cho sprint (xem bảng bên dưới)
+- Flag nếu sprint có quá nhiều Tier 1 items → cần điều chỉnh
+
+**Daily Standup** ❌ — QA không tham gia
+
+QA work async, không cần báo cáo daily. Nếu có finding cần alert → nhắn trực tiếp cho Dev Lead/QC Lead.
+
+**Sprint Review** ✅ — QA tham gia đầy đủ (observe)
+
+- Xem những gì đã ship trong sprint
+- Verify qua evidence đang được làm đúng không (không phán xét trước mặt team, ghi nhận riêng)
+- Input cho planning audit sprint tiếp theo
+
+**Retrospective** ⚡ — QA tham gia khi có quality issue
+
+- Không attend thường xuyên
+- Được mời khi sprint có nhiều bug/DoR fail/release bị block
+- Hoặc QA gửi findings summary cho PM/Scrum Master → SM đưa vào retro
+
+**Release Planning** ✅ — Bắt buộc
+
+- Đây là lúc QA đặt audit window vào lịch release
+- Confirm release date → QA book T-5/T-1/Release day
+- Nếu release date không có buffer cho QA → phải re-negotiate ngay, không để đến T-2
+
+---
+
+## Sprint Calendar — QA trong 2 tuần sprint
+
+```
+SPRINT 2 TUẦN — CÁI NHÌN TỔNG THỂ
+
+          Mon      Tue      Wed      Thu      Fri
+Week 1  ┌────────┬────────┬────────┬────────┬────────┐
+        │        │        │        │        │        │
+        │Dev code│Dev code│Dev code│QC test │QC test │
+        │SA pipe-│SA pipe-│SA pipe-│        │        │
+        │line    │line    │line    │  QA    │  QA    │
+        │        │        │        │rolling │rolling │
+        │        │        │        │audit   │audit   │
+        │        │        │Grooming│(tickets│(tickets│
+        │        │        │[QA ✅] │Closed) │Closed) │
+        └────────┴────────┴────────┴────────┴────────┘
+
+          Mon      Tue      Wed      Thu      Fri
+Week 2  ┌────────┬────────┬────────┬────────┬────────┐
+        │        │        │        │        │        │
+        │Dev fix │Dev fix │QC re-  │        │Sprint  │
+        │bugs    │bugs    │test    │T-5:    │Review  │
+        │        │        │        │Early   │[QA ✅] │
+        │        │  QA    │  QA    │Warning │        │
+        │        │rolling │rolling │Scan    │Weekly  │
+        │        │audit   │audit   │(30min) │Report  │
+        │Planning│        │        │        │        │
+        │[QA30'] │        │        │        │        │
+        └────────┴────────┴────────┴────────┴────────┘
+
+Release day (ví dụ: Mon tuần 3)
+        ┌──────────────────────────────────────────┐
+        │ Sáng: QA Smoke Test STG (1–2 giờ)        │
+        │ Trưa: QA Go/No-Go → Gửi Audit Report     │
+        │ Chiều: Deploy Production                  │
+        │ → QC smoke test Production (15 phút)      │
+        │ → QA monitor kết quả + 24h watch          │
+        └──────────────────────────────────────────┘
+```
+
+---
+
+## Time Estimation — QA
+
+### Per ticket (rolling audit trong sprint)
+
+| Tier | QA audit time | Gồm |
+|---|---|---|
+| Tier 1 | 45–60 phút | Layer 1 (Dev evidence) + Layer 2 (TC review) |
+| Tier 2 | 20–30 phút | Layer 1 chủ yếu + Layer 2 sample |
+| Tier 3 | Không audit | — |
+
+### Per sprint (tổng QA workload)
+
+Ví dụ sprint có 10 Tier 1 + 5 Tier 2 tickets:
+
+| Hoạt động | Estimate |
+|---|---|
+| Rolling audit Tier 1 (10 × 50 phút) | 8 giờ |
+| Rolling audit Tier 2 (5 × 25 phút) | 2 giờ |
+| T-5 Early Warning Scan | 30 phút |
+| T-1 Finalize report | 30–60 phút |
+| Release day smoke test + decision | 1–2 giờ |
+| Weekly Quality Report | 30 phút |
+| **Tổng** | **~13–14 giờ/sprint** |
+
+> QA cần estimate thêm vào Sprint Planning để timeline không bị surprise.
+
+### Phân loại findings theo fixability
+
+Khi QA phát hiện issue, phân loại ngay để team biết impact:
+
+| Loại | Fix time | Impact đến timeline |
+|---|---|---|
+| **Quick fix** | <2 giờ | Không delay release — fix trong ngày |
+| **Medium** | <1 ngày làm việc | Delay release 1 ngày — chấp nhận được |
+| **Complex / Structural** | >1 ngày | NO-GO — cần re-schedule release |
+
+---
+
+## Quy trình 1 — Rolling Audit trong Sprint
 
 ### Sơ đồ
 
 ```
-SPRINT WEEK 1                         SPRINT WEEK 2
-──────────────────────────────────────────────────────
-                                       
- Dev/QC làm việc bình thường            Tương tự Week 1
-       │                                      │
-       │  QA lấy danh sách tickets            │
-       │  đã Closed trong tuần                │
-       │  từ Redmine                          │
-       │         │                            │
-       │    Random chọn                       │
-       │  ┌──────┴──────┐                     │
-       │  │             │                     │
-       │ Tier 1       Tier 2                  │
-       │ 30–50%       15–20%                  │
-       │  stories      stories                │
-       │         │                            │
-       │   Audit từng story:                  │
-       │   ✔ Layer 1 (Dev evidence)           │
-       │   ✔ Layer 2 sample (50% TC)          │
-       │   ✘ Không smoke test                 │
-       │         │                            │
-       │    ┌────┴────┐                       │
-       │   Pass     Gap?                      │
-       │    │         │                       │
-       │    │    S1/S2 gap?                   │
-       │    │    ├── Có  → Alert ngay         │
-       │    │    └── Không → Ghi vào report   │
-       │         │                            │
-       └─────────┘                            │
-                                              │
-                              ┌───────────────┘
-                              │
-                        THỨ SÁU CUỐI SPRINT
-                              │
-                        Gửi Weekly Quality Report
-                        (tổng hợp findings cả sprint)
+                   Ticket lifecycle trong sprint
+                   ─────────────────────────────
+
+Dev code          QC test          QA audit
+─────────         ────────         ────────
+Ticket Open
+    │
+Dev complete
++ SA pipeline
++ DoR done
+    │
+    ▼
+QC receives ──► QC sweep/test
+                    │
+              QC approve?
+                    │
+              ┌─────┴──────┐
+              ▼             ▼
+           Pass          Fail → Dev fix
+              │
+              │  ← TRIGGER QA ROLLING AUDIT NGAY
+              ▼
+         QA audit Layer 1
+         (Dev evidence, 15–30 phút)
+              │
+         QA audit Layer 2
+         (QC work, 15–30 phút)
+              │
+         ┌────┴────┐
+         ▼          ▼
+       Pass        Gap?
+         │           │
+    Ghi nhận    Loại gap?
+    weekly      ├─ S1/S2 → Alert ngay Dev Lead + QC Lead
+    report      └─ S3/S4 → Ghi vào weekly report
 ```
 
 ### Mô tả các bước
 
-**Bước 1 — Chọn stories để spot-check (15 phút, cuối mỗi tuần)**
+**Bước 1 — Trigger (ngay khi QC approve ticket)**
 
-Vào cuối mỗi tuần, QA vào Redmine lấy danh sách tickets đã Closed trong tuần đó.
+QC approve ticket → QA nhận tín hiệu (Redmine status change) → bắt đầu audit trong cùng ngày hoặc ngày làm việc tiếp theo. Không đợi đến T-2.
 
-Ưu tiên chọn tickets có:
-- Financial logic (tiền, voucher, điểm)
-- Feature mới (lần đầu làm)
-- Dev mới hoặc chưa quen domain
+**Bước 2 — Audit Layer 1 (15–30 phút)**
 
-Chọn ngẫu nhiên theo tỷ lệ:
+Kiểm tra Dev evidence — không hỏi Dev, evidence phải tự nói lên được:
+- SA0–SA5 evidence đính kèm đúng format
+- SonarQube link đính kèm, đạt chuẩn (≥90%, 0 Blocker, 0 Critical)
+- Acceptance criteria từng item có pass/fail rõ ràng
+- QA scan spec → liệt kê case thiếu trong SA3 (nếu có)
 
-| Tier | Tỷ lệ spot-check | Thời gian/story |
-|---|---|---|
-| Tier 1 | 30–50% stories/tuần | 30–60 phút |
-| Tier 2 | 15–20% stories/tuần | 15–30 phút |
-| Tier 3 | Không (trừ khi có bug) | — |
+**Bước 3 — Audit Layer 2 (15–30 phút)**
 
-**Bước 2 — Thực hiện spot-check (theo thời gian ngân sách)**
+Kiểm tra QC work:
+- TC format đúng template chuẩn trên SharePoint
+- Mọi TC có Status — không để trống
+- Scan spec → TC list → tính TC gap rate (số case thiếu / tổng spec cases)
 
-Chạy Layer 1 + Layer 2 (sample), không chạy Layer 3:
-
-- **Layer 1 — Dev evidence:** SA0–SA5 có đủ không, SonarQube đạt chuẩn không, security baseline ổn không
-- **Layer 2 — QC work (50% TCs):** TC format đúng template không, pass/fail ghi rõ không, coverage so spec có gap không
-
-**Bước 3 — Xử lý kết quả**
+**Bước 4 — Xử lý kết quả**
 
 | Kết quả | Hành động |
 |---|---|
-| Pass | Ghi nhận vào Weekly Quality Report, không cần thêm |
-| Gap nhỏ (S3/S4 level) | Ghi vào report, theo dõi pattern |
-| Gap nghiêm trọng (S1/S2 evidence thiếu) | Alert ngay Dev Lead + QC Lead trong ngày |
-
-**Bước 4 — Weekly Quality Report (thứ Sáu)**
-
-Tổng hợp tất cả findings trong sprint → gửi cho QC Lead + Dung.
-Template: [report-weekly-quality.md](../templates/report-weekly-quality.md)
+| Pass | Ghi ticket vào "audit done" list → tổng hợp weekly report |
+| S3/S4 gap | Ghi vào report, theo dõi pattern |
+| S1/S2 gap | Alert ngay Dev Lead + QC Lead trong ngày |
 
 ---
 
 ## Quy trình 2 — Release Gate (Tier 1)
 
-> Bắt buộc trước **mọi** release có code change trên Tier 1 products.
-> Danh sách Tier 1: xem [QC Classification Matrix](qc-classification-matrix.md)
+> Nhờ rolling audit trong sprint, phần lớn tickets đã được audit xong.
+> Release gate chỉ còn: T-5 scan → T-1 compile → Smoke test → Decision.
 
 ### Sơ đồ
 
@@ -151,130 +305,101 @@ Template: [report-weekly-quality.md](../templates/report-weekly-quality.md)
          PM / Dev Lead                    QA                     Outcome
          ─────────────               ──────────               ──────────
 
-T-2 ngày:
-  Gửi release scope ──────────────► Nhận scope
-  • Danh sách tickets                Lên kế hoạch audit
-  • Build version                    Xác định tickets
-  • Changelog                        có override trigger
-  • Deploy target time               (financial/migration/incident)
+[Trong sprint]:
+                                  Rolling audit từng ticket
+                                  sau khi QC approve
+                                  (phần lớn tickets đã done)
 
-T-1 ngày:                            ┌─────────────────────┐
-                                     │   LAYER 1 (≤2 giờ)  │
-                                     │ • SA pipeline ok?    │
-                                     │ • SonarQube đạt?     │
-                                     │ • Security clear?    │
-                                     │ • Req coverage?      │
-                                     └──────────┬──────────┘
-                                                │
-                                     ┌──────────▼──────────┐
-                                     │   LAYER 2 (≤1 giờ)  │
-                                     │ • TC format ok?      │
-                                     │ • Pass/Fail đủ?      │
-                                     │ • Coverage vs spec?  │
-                                     │ • Gap scan           │
-                                     └──────────┬──────────┘
-                                                │
-                                         Draft Audit Report
+T-5 ngày:                        Early Warning Scan (30 phút)
+                                  • SonarQube bất thường?
+                                  • DoR failure hệ thống?
+                                  • Tickets chưa audit?
+                                       │
+                                  ┌────┴────┐
+                                  ▼          ▼
+                             Ổn hết        Cần alert
+                                           Dev/QC ngay
+                                           → còn 5 ngày fix
 
-Release day:                         ┌──────────▼──────────┐
-  (Sáng)                             │   LAYER 3 (≤1 giờ)  │
-                                     │ Smoke test STG:      │
-                                     │ • Critical flows     │
-                                     │ • Sanity check       │
-                                     └──────────┬──────────┘
-                                                │
-  (Trưa)                             ┌──────────▼──────────┐
-                                     │  FINALIZE REPORT     │
-                                     │  + Decision          │
-                                     └──────────┬──────────┘
-                                                │
-                              ┌─────────────────┼────────────────┐
-                              ▼                 ▼                ▼
-                          🟢 GO           🟡 GO+COND         🔴 NO-GO
-                              │                 │                │
-                           Deploy           PM ack          Gửi findings
-                          Production        + Deploy         rõ ràng cho
-                              │            + doc risk         Dev/QC
-                              │                 │                │
-                        QC smoke test     QC smoke test      Dev/QC fix
-                        production         production             │
-                              │                 │         QA verify (≤4h)
-                        Monitor 24h       Monitor 24h             │
-                                                              ┌───┴───┐
-                                                              ▼       ▼
-                                                             GO    Cần thêm
-                                                              │     time?
-                                                          Deploy   Re-schedule
+T-1 ngày:                        Finalize Audit Report
+  Confirm build                   (30–60 phút — chủ yếu compile)
+  version ────────────────►       Không audit lại đã done
+                                  Chỉ check tickets mới nhất
+
+Release day:
+  (Sáng)                         Layer 3: Smoke test STG
+                                  Critical flows (1–2 giờ)
+                                       │
+  (Trưa)                          Go/No-Go Decision
+                                  + Gửi QA Audit Report
+                                       │
+                         ┌─────────────┼────────────┐
+                         ▼             ▼             ▼
+                      🟢 GO       🟡 GO+COND     🔴 NO-GO
+                         │             │             │
+                      Deploy        PM ack        Phân loại
+                     Production    + Deploy        findings
+                         │         + doc risk   (Quick/Medium/
+                         │             │          Complex)
+                   QC smoke test  QC smoke test      │
+                   production      production    Dev/QC fix
+                         │             │         (SLA theo loại)
+                   QA monitor     QA monitor         │
+                      24h            24h         QA re-verify
+                                                    (≤4h)
 ```
 
 ### Mô tả các bước
 
-**Bước 1 — Nhận scope và chuẩn bị (T-2 ngày)**
+**T-5: Early Warning Scan (30 phút)**
 
-PM hoặc Dev Lead gửi:
-- Danh sách tickets trong release
-- Build version / branch name
-- Changelog mô tả ngắn
-- Thời gian deploy dự kiến
+Quét nhanh — không phải full audit, chỉ flag nếu có vấn đề hệ thống:
+- Vào SonarQube: có Blocker/Critical nào trên code trong release không?
+- Redmine: có tickets nào rõ ràng thiếu SA evidence không?
+- Tickets nào chưa được rolling audit → lên kế hoạch audit trong 3 ngày còn lại
 
-QA thực hiện:
-- Xác nhận đã nhận scope
-- Scan qua danh sách tickets, đánh dấu tickets ưu tiên audit kỹ (có override trigger: financial, migration, post-incident, new 3rd-party API)
-- Lên kế hoạch: Layer 1+2 vào T-1, Layer 3 vào release day sáng
+Nếu thấy vấn đề → alert ngay Dev Lead. Còn 5 ngày để fix, không phải 1 ngày.
 
-**Bước 2 — Audit Layer 1 (T-1 ngày, ≤2 giờ)**
+**T-1: Finalize Report (30–60 phút)**
 
-Kiểm tra Dev evidence — không hỏi Dev, evidence phải tự nói lên được:
+Vì rolling audit đã xong gần hết:
+- Compile tất cả audit results từ rolling
+- Audit nốt tickets mới nhất (nếu có)
+- Tạo draft QA Audit Report
 
-- SA0–SA5 evidence đính kèm đúng format và đủ nội dung
-- SonarQube: link đính kèm, coverage ≥90%, 0 Blocker, 0 Critical, security hotspots reviewed
-- Acceptance criteria: từng item có pass/fail rõ ràng
-- QA tự scan spec → liệt kê case thiếu trong SA3 (nếu có)
+**Release day sáng: Smoke Test STG (1–2 giờ)**
 
-**Bước 3 — Audit Layer 2 (T-1 ngày, ≤1 giờ)**
-
-Kiểm tra QC work — không test lại, chỉ đọc evidence:
-
-- TC format đúng template chuẩn trên SharePoint
-- Mọi TC có Status (Pass/Fail/Blocked) — không để trống
-- QA đọc spec → đọc TC list → liệt kê case trong spec không có TC
-- Tính TC gap rate = số case thiếu / tổng case trong spec
-
-**Bước 4 — Smoke Test Layer 3 (Release day sáng, ≤1 giờ)**
-
-QA tự thực hiện trên STG — chỉ critical flows liên quan đến release này:
-
-- Chọn flows dựa trên changelog (cái gì thay đổi thì test cái đó)
+QA tự thực hiện trên STG — chỉ critical flows liên quan đến release:
 - Consumer flows nếu có change: browse → mua → dùng voucher
 - Campaign/Loyalty nếu có change: tham gia → nhận thưởng → verify điểm
 - API nếu có change: auth → core request → idempotency
-- Sanity: không có 500 error, load time ổn, error state đúng
+- Sanity: không có 500 error, load time ổn
 
-**Bước 5 — Go/No-Go Decision (Release day trưa)**
+**Release day trưa: Go/No-Go Decision**
 
-Hoàn thiện QA Audit Report và ra quyết định:
+Hoàn thiện report và ra quyết định:
 
-| Quyết định | Điều kiện | Hành động tiếp theo |
+| Quyết định | Điều kiện |
+|---|---|
+| 🟢 GO | Tất cả criteria pass |
+| 🟡 GO WITH CONDITIONS | S2 bug có workaround + PM ack; TC gap <20% và smoke test cover |
+| 🔴 NO-GO | S1 open / SonarQube Blocker / TC gap >30% / smoke test fail |
+
+**Nếu NO-GO — phân loại findings ngay:**
+
+| Loại | Fix time ước tính | Timeline impact |
 |---|---|---|
-| 🟢 **GO** | Tất cả criteria pass | Gửi report → Deploy |
-| 🟡 **GO WITH CONDITIONS** | S2 bug có workaround + PM ack; TC gap <20% và smoke test cover | PM ký acknowledge → Deploy + document |
-| 🔴 **NO-GO** | Bất kỳ: S1 open / SonarQube Blocker / TC gap >30% / smoke test fail | Gửi findings → Dev/QC fix |
+| Quick fix | <2 giờ | Release cùng ngày |
+| Medium | <1 ngày | Delay 1 ngày |
+| Complex | >1 ngày | Re-schedule release |
 
-Gửi QA Audit Report đến: Dev Lead + PM + QC Lead
+Gửi QA Audit Report đến: Dev Lead + PM + QC Lead.
 
-**Bước 6a — Nếu GO/GO WITH CONDITIONS**
+**Post-deploy: Production verification**
 
-- PM tiến hành deploy
-- QC thực hiện smoke test production sau deploy
-- QA monitor kết quả 24h đầu
-
-**Bước 6b — Nếu NO-GO**
-
-- Findings gửi kèm: lý do cụ thể + cần fix gì + priority
-- Dev/QC fix và re-submit (SLA: ≤1 ngày làm việc)
-- QA verify fixes trong 4 giờ làm việc
-- Nếu fix đủ → GO → Deploy
-- Nếu cần thêm time → PM re-schedule deploy window
+- QC thực hiện smoke test production (≤15 phút, critical flows)
+- QC báo kết quả cho QA
+- QA monitor 24h đầu: error rate, bug reports từ CS/user
 
 ---
 
@@ -286,9 +411,10 @@ Gửi QA Audit Report đến: Dev Lead + PM + QC Lead
 Tier 2 release
       │
       ▼
-   Có override trigger?
-   (financial, migration,
-    post-incident, risk signal)
+   Override trigger?
+   (financial change, migration,
+    post-incident, nhiều Tier 2
+    đổi cùng release, risk signal)
       │
    ┌──┴──┐
    ▼     ▼
@@ -296,17 +422,12 @@ Tier 2 release
    │       │
 QA audit   PM/Dev request QA? ──Có──► QA audit (tự nguyện)
 (như Tier 1  │
- nhưng       Không
- lighter)    │
+ lighter)    Không
+             │
              ▼
        Không có QA gate
        Dev/QC tự chịu trách nhiệm
 ```
-
-Không có mandatory QA gate cho Tier 2. QA chỉ tham gia khi:
-- Override trigger xảy ra (xem [Classification Matrix](qc-classification-matrix.md))
-- PM/Dev Lead chủ động request
-- QA thấy risk signal từ spot-check trong sprint
 
 ---
 
@@ -318,57 +439,51 @@ Không có mandatory QA gate cho Tier 2. QA chỉ tham gia khi:
 Bug phát hiện trên Production
            │
            ▼
-  QC log bug vào Redmine
-  + tag severity (S1/S2/S3/S4)
+  QC log bug Redmine + tag severity
            │
     ┌──────┴──────┐
     ▼             ▼
   S1/S2         S3/S4
-  (alert QA      (QA nhận
-  cùng ngày)     cuối tuần)
+  Alert QA      QA nhận
+  cùng ngày     cuối tuần
            │
            ▼
-  QA thực hiện Process RCA (≤1 ngày)
-  ┌─────────────────────────────────┐
-  │ Bug này lẽ ra catch ở đâu?     │
-  │                                 │
-  │ Layer 1? ──► SA evidence thiếu  │
-  │ Layer 2? ──► TC coverage gap    │
-  │ Layer 3? ──► Smoke test miss    │
-  │ Không check? ──► Checklist gap  │
-  └──────────────┬──────────────────┘
-                 │
-        ┌────────┼──────────┐
-        ▼        ▼          ▼
-  Update      Feedback    Update
-  QA audit    cho QC/Dev  report
-  checklist   (process,   template
-               không blame)
+  QA Process RCA (≤1 ngày làm việc)
+  ──────────────────────────────────
+  Câu hỏi 1: Bug lẽ ra catch ở đâu?
+    ├─ Layer 1? → SA evidence thiếu
+    ├─ Layer 2? → TC coverage gap
+    └─ Layer 3? → Smoke test miss
+
+  Câu hỏi 2: QA đã check chưa?
+    ├─ Đã check → tại sao miss?
+    │             (checklist mù / evidence fake / QA oversight)
+    └─ Chưa check → tại sao?
+                   (không có trong checklist / out of scope)
+
+  Câu hỏi 3: Fix gì để không lặp lại?
+           │
+    ┌──────┼──────────┐
+    ▼      ▼          ▼
+  Update  Feedback  Update
+  audit   QC/Dev    report
+  check-  (process) template
+  list
 ```
 
 ### Mô tả các bước
 
-**Bước 1 — Nhận thông báo bug production**
-- S1/S2: QC alert QA ngay cùng ngày phát hiện
-- S3/S4: QA nhận qua Redmine dashboard, review cuối tuần
+**Bước 1 — Nhận thông báo:** S1/S2 → alert QA cùng ngày. S3/S4 → QA review cuối tuần qua Redmine.
 
-**Bước 2 — Phân tích Process RCA (≤1 ngày làm việc)**
+**Bước 2 — Process RCA (≤1 ngày):** Trả lời 3 câu hỏi trên, ghi kết quả ra rõ ràng.
 
-Trả lời tuần tự 3 câu hỏi:
-
-1. *Bug này lẽ ra bị catch ở bước nào?* (Layer 1, 2, hay 3)
-2. *QA đã check item liên quan chưa?*
-   - Nếu đã check → tại sao vẫn miss? (evidence fake / checklist mù / QA oversight)
-   - Nếu chưa check → tại sao? (không có trong checklist / out of scope?)
-3. *Cần thêm/sửa gì để không bị lại?*
-
-**Bước 3 — Action items**
+**Bước 3 — Action items:**
 
 | Phát hiện | Hành động |
 |---|---|
-| Checklist thiếu mục → thêm vào QA audit checklist | Update ngay |
-| Evidence của QC/Dev thiếu mục → feedback theo process | Gửi QC Lead/Dev Lead |
-| QA oversight (có check nhưng miss) → retrain/update guide | Self-improvement |
+| Checklist thiếu item | Update QA audit checklist ngay |
+| Evidence của QC/Dev thiếu | Feedback cho QC Lead/Dev Lead (process, không blame cá nhân) |
+| QA oversight | Self-improvement — ghi chú vào QA guide |
 
 ---
 
@@ -380,91 +495,81 @@ Trả lời tuần tự 3 câu hỏi:
 Cuối quarter (tháng 3 / 6 / 9 / 12)
              │
              ▼
-  ┌─────────────────────────────────────────┐
-  │           PULL METRICS                  │
-  │                                         │
-  │  DoR compliance rate     → target ≥80%  │
-  │  TC coverage gap rate    → target <20%  │
-  │  SonarQube compliance    → target 100%  │
-  │  Release blocked count   → trending ↓  │
-  │  Bug escaped count       → trending ↓  │
-  │  Audit cycle time        → target ≤4h  │
-  └──────────────────┬──────────────────────┘
-                     │
-             ┌───────┼───────────┐
-             ▼       ▼           ▼
-         Metrics   Process    Tier
-         on track? gaps?    correct?
-             │       │           │
-        ✓ OK   Fix DoR/   Nâng/hạ tier
-               playbook    nếu cần
-                     │
-                     ▼
-         Quarterly QA Report
-         → QA Manager + QC Manager + Dev Leads
-         → Process improvement backlog Q+1
+  Pull metrics từ Redmine + SonarQube
+  ┌────────────────────────────────────────┐
+  │ DoR compliance rate      target ≥80%   │
+  │ TC coverage gap rate     target <20%   │
+  │ SonarQube compliance     target 100%   │
+  │ Release blocked count    trending ↓    │
+  │ Bug escaped to prod      trending ↓    │
+  │ Audit cycle time         target ≤4h    │
+  └────────────────┬───────────────────────┘
+                   │
+          ┌────────┼────────┐
+          ▼        ▼        ▼
+       Metrics   Process  Tier
+       on track? gaps?   correct?
+          │        │        │
+       ✓ OK   Fix DoR/  Nâng/hạ
+              playbook  tier nếu
+                        cần
+                   │
+             Quarterly QA Report
+             → QA Manager + QC Manager + Dev Leads
+             → Process improvement backlog Q+1
 ```
 
 ---
 
 ## Escalation Path
 
-### Sơ đồ
+### Kịch bản 1 — PM muốn override NO-GO
 
 ```
-KỊCH BẢN 1: PM muốn override NO-GO
-──────────────────────────────────────────────────────
-
 QA: NO-GO
      │
      ▼
-PM không đồng ý → Phải gặp QA Manager
-                        │
-                ┌───────┴───────┐
-                ▼               ▼
-          QA Manager        QA Manager
-          đồng ý với QA      muốn override
-                │               │
-           Giữ NO-GO        Phải documented
-                │            rõ lý do bằng văn bản
-                │               │
-           PM escalate          ▼
-           lên CPO/CTO    CPO/CTO override
-                │         (documented chính thức)
-                │               │
-           CPO/CTO               ▼
-           quyết định     QA ghi vào audit log
-                          → Track outcome sau
+PM không đồng ý
+     │
+     ▼
+PM phải gặp QA Manager (không trực tiếp pressure QA)
+     │
+     ┌──────────────────────┐
+     ▼                      ▼
+QA Manager đồng ý      QA Manager muốn override
+với QA                      │
+     │                 Phải documented rõ lý do
+Giữ NO-GO             bằng văn bản
+     │                      │
+PM escalate            CPO/CTO override
+lên CPO/CTO            (documented chính thức)
+     │                      │
+CPO/CTO quyết định    QA ghi vào audit log
+                       → Track outcome sau
+```
 
+### Kịch bản 2 — QC/Dev không đồng ý với QA finding
 
-KỊCH BẢN 2: QC/Dev không đồng ý với QA finding
-──────────────────────────────────────────────────────
-
+```
 QA finding gửi đến QC/Dev
-          │
-          ▼
-   QC/Dev disagree
-          │
-          ▼
-   QC/Dev trình bày context bổ sung
-   (≤24 giờ làm việc)
-          │
-          ▼
-   QA review lại:
-   ┌──────┴──────┐
-   ▼             ▼
-  QA sai      QA đúng
-   │             │
-Acknowledge   Giữ finding
-+ update      + explain
-checklist     rõ hơn
-                │
-          Vẫn không
-          đồng ý?
-                │
-                ▼
-       Escalate lên
-     QA Manager + QC Manager
+     │
+QC/Dev disagree
+     │
+QC/Dev trình bày context bổ sung (≤24 giờ)
+     │
+QA review lại
+     │
+  ┌──┴──┐
+  ▼      ▼
+QA sai  QA đúng
+  │       │
+Acknowledge  Giữ finding
++ update     + explain
+checklist    rõ hơn
+               │
+         Vẫn không đồng ý?
+               │
+         Escalate: QA Manager + QC Manager
 ```
 
 ---
@@ -473,16 +578,34 @@ checklist     rõ hơn
 
 | Hoạt động | SLA | Owner |
 |---|---|---|
-| PM gửi scope → QA confirm nhận | ≤4 giờ làm việc | PM + QA |
-| QA hoàn thành Layer 1+2 | ≤3 giờ (T-1 ngày) | QA |
-| QA hoàn thành Layer 3 + decision | ≤2 giờ (release day sáng) | QA |
+| QA audit ticket sau QC approve (rolling) | ≤1 ngày làm việc | QA |
+| T-5 Early Warning Scan | 30 phút | QA |
+| T-1 Finalize report | 30–60 phút | QA |
+| Release day smoke test + decision | ≤2 giờ | QA |
 | QA Audit Report gửi sau decision | Trong ngày | QA |
-| Dev/QC fix NO-GO findings (urgent) | ≤1 ngày làm việc | Dev/QC |
+| Dev/QC fix Quick findings | <2 giờ | Dev/QC |
+| Dev/QC fix Medium findings | <1 ngày làm việc | Dev/QC |
 | QA verify fix sau NO-GO | ≤4 giờ làm việc | QA |
-| Spot-check per story | ≤1 giờ | QA |
-| Post-incident Process RCA | ≤1 ngày làm việc (S1/S2) | QA |
+| Post-incident Process RCA (S1/S2) | ≤1 ngày làm việc | QA |
 | Weekly Quality Report | Thứ Sáu cuối tuần | QA |
 | Quarterly QA Report | Tuần đầu tháng kế tiếp | QA |
+
+---
+
+## Communication Protocol
+
+| Loại finding | Gửi đến | Format | Khi nào |
+|---|---|---|---|
+| S1/S2 gap trong rolling audit | Dev Lead + QC Lead | Redmine comment + direct message ngay | Cùng ngày phát hiện |
+| Go/No-Go decision | Dev Lead + PM + QC Lead | QA Audit Report | Release day trưa |
+| Spot-check patterns | QC Lead + QC Manager | Weekly Quality Report | Thứ Sáu |
+| Post-incident RCA | Dev Lead + PM + QC Lead | Process RCA doc | ≤1 ngày sau incident |
+| Process improvement | QA Manager + QC Manager + Dev Leads | Quarterly Report | Đầu quarter tiếp |
+
+**Nguyên tắc:**
+- Findings kèm **evidence cụ thể**, không phán xét chung chung
+- Tone: "Spec mục X không có TC tương ứng" — không "QC làm thiếu"
+- QA không blame cá nhân — focus vào process gap
 
 ---
 

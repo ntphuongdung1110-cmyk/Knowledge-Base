@@ -10,14 +10,14 @@
 
 **QA (Quality Assurance)** là team độc lập, không tham gia trực tiếp vào quá trình test. QA là **process guardian** và **release gate**.
 
-| | QC (Quality Control) | QA (Quality Assurance) |
-|---|---|---|
-| Làm gì | Test, tìm bug, sweep | Audit evidence, kiểm tra quy trình |
-| Đầu vào | Code + spec | Evidence từ Dev + QC |
-| Output | Bug report, sweep result | Audit report + Go/No-Go decision |
-| Phạm vi | Từng ticket/feature | Toàn bộ quy trình + release gate |
-| Báo cáo về | QC Manager | QA Manager |
-| Quan hệ với sản phẩm | Test trực tiếp | Kiểm tra evidence — không test lại toàn bộ |
+|                      | QC (Quality Control)     | QA (Quality Assurance)                     |
+| -------------------- | ------------------------ | ------------------------------------------ |
+| Làm gì               | Test, tìm bug, sweep     | Audit evidence, kiểm tra quy trình         |
+| Đầu vào              | Code + spec              | Evidence từ Dev + QC                       |
+| Output               | Bug report, sweep result | Audit report + Go/No-Go decision           |
+| Phạm vi              | Từng ticket/feature      | Toàn bộ quy trình + release gate           |
+| Báo cáo về           | Dev Lead                 | QA Manager                                 |
+| Quan hệ với sản phẩm | Test trực tiếp           | Kiểm tra evidence — không test lại toàn bộ |
 
 **QA KHÔNG làm:**
 - Test lại toàn bộ sản phẩm (đó là QC)
@@ -108,14 +108,14 @@ QA kiểm tra evidence — không phải test lại. Audit gồm 3 layer:
 
 ## Metrics QA theo dõi
 
-| Metric | Target | Cách đo |
-|---|---|---|
-| DoR compliance rate | ≥80% (Q3/2026) | % tickets pass DoR lần đầu |
-| TC coverage gap rate | <20% spec cases bị QA phát hiện thiếu | QA gap scan mỗi audit |
-| SonarQube compliance | 100% tickets đạt threshold | SonarQube dashboard |
-| Release blocked by QA | Trending down | Monthly count |
-| Bug escaped to production | Trending down | Production bug count |
-| Audit cycle time (Tier 1) | ≤4 giờ/release | Thực đo |
+| Metric                    | Target                                | Cách đo                    |
+| ------------------------- | ------------------------------------- | -------------------------- |
+| DoR compliance rate       | ≥80% (Q3/2026)                        | % tickets pass DoR lần đầu |
+| TC coverage gap rate      | <20% spec cases bị QA phát hiện thiếu | QA gap scan mỗi audit      |
+| SonarQube compliance      | 100% tickets đạt threshold            | SonarQube dashboard        |
+| Release blocked by QA     | Trending down                         | Monthly count              |
+| Bug escaped to production | Trending down                         | Production bug count       |
+| Audit cycle time (Tier 1) | ≤4 giờ/release                        | Thực đo                    |
 
 ---
 

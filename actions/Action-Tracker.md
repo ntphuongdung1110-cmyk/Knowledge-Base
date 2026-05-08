@@ -2,7 +2,7 @@
 
 > Nguồn sự thật cho tất cả tasks đang mở. Cập nhật sau mỗi cuộc họp hoặc session làm việc.
 
-**Cập nhật:** 2026-04-22
+**Cập nhật:** 2026-05-04
 
 ---
 
@@ -10,7 +10,8 @@
 
 | # | Task | Mảng | Deadline | Owner | Nguồn |
 |---|---|---|---|---|---|
-| — | *(trống)* | | | | |
+| 1 | Đề xuất tool quản lý project thay thế Excel cho toàn PD | PD | 05/05/2026 | Dung | PD Management Meeting 20/04 |
+| 2 | Setup AI/Claude training session — book lịch, invite Hoàng Hồ & team | AI | 05/05/2026 | Dung | PD Management Meeting 20/04 |
 
 ---
 
@@ -21,10 +22,48 @@
 | 1 | Dashboard đánh giá performance team QC | QC | — | Dung | tasks.md |
 | 2 | Đánh giá performance từng thành viên | QC | Sau khi có dashboard | Dung | tasks.md |
 | 3 | Review CV ứng viên intern | QC | — | Dung | tasks.md |
-| 4 | Phase 5e — AI Measurement chạy thật | AI | Cuối tháng | Dung | tasks.md |
-| 5 | Scope review alignment | PD | 22/04/2026 | Dung | meetings |
-| 6 | Đề xuất tool quản lý project thay thế Excel cho toàn PD | PD | Trước 05/05/2026 | Dung | PD Management Meeting 20/04 |
-| 7 | Setup AI/Claude training session — book lịch, invite Hoàng Hồ & team liên quan | AI | Trước 05/05/2026 | Dung | PD Management Meeting 20/04 |
+| 4 | Phase 5e — AI Measurement chạy thật | AI | 31/05/2026 | Dung | tasks.md |
+| 5 | Scope review alignment | PD | Done/overdue | Dung | meetings |
+| 6 | ~~Training plan 8 tuần cho Thắng + Khải~~ | QC | — | — | Void — Thắng nghỉ, Khải → PO |
+| 7 | Align Dev Leads về Dev DoR — chốt criteria trước khi áp dụng | QC | 12/05/2026 | Dung | qc-scope-v2.md |
+| 8 | **[URGENT] Chốt 2 Quality Engineers thay thế Thắng + Khải** | QC | 12/05/2026 | Dung | Session 06/05/2026 |
+| 9 | **[URGENT] Quyết định Applitools research** — Thắng nghỉ, demo 12/06 không còn owner | QC | 09/05/2026 | Dung | Risk mới |
+| 10 | Kiểm tra automation scripts (Katalon/Robot Framework) — còn chạy được không, ai maintain | QC | 12/05/2026 | Dung | Risk mới |
+
+---
+
+## 🏗️ QC Role Mới — New Model Setup
+
+> Phase plan: May → Aug 2026 | Deadline QC Transformation: 31/08/2026
+
+### Phase 1 — Foundation (May 2026)
+
+| # | Task | Deadline | Owner | Trạng thái | Output |
+|---|---|---|---|---|---|
+| F1 | Phân loại sản phẩm Critical/Standard/Basic | 09/05/2026 | Dung | ✅ Done 04/05 | `frameworks/qc-classification-matrix.md` |
+| F2 | Viết Dev Test DoR (Definition of Ready) | 12/05/2026 | Dung | ✅ Done 04/05 — chờ align | `frameworks/dev-test-dor.md` |
+| F3 | Chuẩn hóa SA0–SA5 pipeline dành cho Dev | 16/05/2026 | Dung + Thắng | 🟡 SA1–SA5 xong, SA0 blocked | `frameworks/dev-ai-testing-playbook.md` |
+| F4 | Tạo QC Sweep Checklist theo loại sản phẩm | 19/05/2026 | Thắng + Khải | 🟡 Skeleton done — cần Thắng/Khải fill domain items | `frameworks/qc-sweep-checklist.md` |
+| F5 | Tạo Reporting Templates (3 loại) | 05/05/2026 | Dung | ✅ Done 04/05 | `templates/report-weekly-quality.md`, `report-post-sweep.md`, `report-dev-feedback.md` |
+| F6 | Align Dev Leads: DoR + Classification Matrix | 12/05/2026 | Dung | 🔲 Cần book meeting | Calendar invite |
+
+### Phase 2 — Setup vận hành (June 2026)
+
+| # | Task | Deadline | Owner | Trạng thái |
+|---|---|---|---|---|
+| O1 | Chốt sweep cadence với Dev Leads | 01/06/2026 | Dung | 🔲 |
+| O2 | Thắng + Khải chạy thử sweep đầu tiên (dry run) | 15/06/2026 | Thắng, Khải | 🔲 |
+| O3 | Review 8-week training checkpoint (tuần 4) | 17/06/2026 | Dung | 🔲 |
+
+### Phase 3 — Vận hành + Upskill (July–Aug 2026)
+
+| # | Task | Deadline | Owner | Trạng thái |
+|---|---|---|---|---|
+| U1 | Sweep thật lần đầu — 2 Critical projects | 15/07/2026 | Thắng, Khải | 🔲 |
+| U2 | Upskilling session #1 với Dev teams | 15/07/2026 | Dung | 🔲 |
+| U3 | AI Measurement Phase 5e — so sánh kết quả | 31/07/2026 | Dung | 🔲 |
+| U4 | Report QC Transformation progress cho leadership | 15/08/2026 | Dung | 🔲 |
+| U5 | Checkpoint: đo bug escape rate lần đầu | 31/08/2026 | Dung | 🔲 |
 
 ---
 
