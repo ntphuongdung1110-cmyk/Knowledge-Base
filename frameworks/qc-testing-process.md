@@ -78,11 +78,11 @@
 
 | Loại | Người thực hiện | Tool |
 |---|---|---|
-| Manual Functional | Tất cả QC Engineers | Redmine, Test case template |
-| API Testing | QC Core/Integration | Postman |
-| Automation | Thắng Trương | Robot Framework, Selenium |
-| Performance | Thắng Trương | JMeter, K6 |
-| Visual AI | Thắng Trương (research) | Applitools Eyes |
+| Manual Functional | QC Engineers | Redmine, Test case template |
+| API Testing | QC Engineers | Postman |
+| Automation | Automation Engineer (TBD) | Robot Framework, Selenium |
+| Performance | Automation Engineer (TBD) | JMeter, K6 |
+| Visual AI | Automation Engineer (TBD) | Applitools Eyes |
 | Unit/Feature (Shift-Left) | Dev team | SonarQube, JUnit |
 
 ---
@@ -94,7 +94,7 @@
 - [ ] Test data đã chuẩn bị
 - [ ] Risk đã được identify
 - [ ] Dev đã pass unit test (Shift-Left)
-- [ ] Code coverage ≥60% trên SonarQube
+- [ ] Code coverage ≥90% (code mới/changed) trên SonarQube — xem [Quality Standards](qa-quality-standards.md)
 
 ---
 

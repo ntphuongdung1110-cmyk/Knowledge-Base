@@ -11,7 +11,6 @@
 DoR này định nghĩa **Dev phải làm gì trước khi handover ticket cho QC**. Nếu không đạt → QC từ chối nhận, Dev fix và re-submit. Không có exception.
 
 > Nguồn: [qc-scope-v2.md](~/second-brain/projects/qc-transformation/qc-scope-v2.md)
-> "QC chỉ nhận ticket đã pass 3 điều kiện: SA0–SA5 chạy, DoR checklist, unit test ≥80%"
 
 > **Lưu ý cho Dev:** QA sẽ audit ngẫu nhiên evidence trong DoR này. Evidence phải đủ để QA kiểm tra độc lập — không cần hỏi thêm Dev. Thiếu evidence = fail audit, dù ticket đã được QC chấp nhận.
 
@@ -25,14 +24,12 @@ Dev bắt buộc chạy **SA0–SA5** và đính kèm evidence:
 
 | Step | Subagent | Output cần attach |
 |---|---|---|
-| SA0 | *(xem ghi chú bên dưới)* | *(cần confirm)* |
+| SA0 | Context Setup | Comment trong ticket: làm gì / thay đổi ở đâu / ảnh hưởng đến đâu (3–5 dòng) |
 | SA1 | Requirement Clarifier | Screenshot kết quả + câu hỏi đã clarify với BA/PO |
 | SA2 | Risk Scout | Risk matrix đã review — đánh dấu High/Medium/Low |
 | SA3 | Test Designer | Danh sách test scenarios đã thực hiện |
 | SA4 | Bug Hunter | Các attack vectors đã thử — kết quả pass/fail |
 | SA5 | RCA Assistant | Chỉ bắt buộc khi phát hiện bug severity 1–2 trong quá trình dev |
-
-> ⚠️ **SA0 chưa được định nghĩa** trong guide hiện tại. Xem phần [Câu hỏi cần confirm](#cau-hoi-confirm).
 
 **Evidence format:** Comment trong Redmine ticket hoặc attachment screenshot
 
@@ -130,20 +127,9 @@ Tracked trên Redmine Dashboard (Tab 2 — Monthly Report):
 
 ---
 
-## <a name="cau-hoi-confirm"></a>⚠️ Điểm cần confirm với Dung
-
-| # | Câu hỏi | Impact |
-|---|---|---|
-| 1 | ~~SA0 là gì?~~ | ✅ Confirmed — xem dev-ai-testing-playbook.md |
-| 2 | **DoR này đã được chia sẻ với Dev Leads chưa?** — cần align trước khi apply | Nếu chưa → book meeting trước 12/05 |
-| 3 | ~~SonarQube coverage?~~ | ✅ Chốt: ≥90% |
-| 4 | **BackOffice self-certify** — có ngoại lệ nào không? | Ảnh hưởng override rule trong classification matrix |
-
----
-
 ## Liên kết
 
+- [Quality Standards](qa-quality-standards.md) — Tiêu chuẩn đầy đủ: severity, coverage, TC format
 - [QC Classification Matrix](qc-classification-matrix.md) — Tier nào cần sweep sau khi DoR pass
-- [AI Subagent Guide](ai-subagent-guide.md) — SA1–SA5 prompts
+- [Dev AI Testing Playbook](dev-ai-testing-playbook.md) — Hướng dẫn SA0–SA5 từng bước
 - [QC Sweep Checklist](qc-sweep-checklist.md) — QC làm gì sau khi nhận ticket
-- [Dev AI Testing Playbook](dev-ai-testing-playbook.md) — Hướng dẫn từng bước cho Dev

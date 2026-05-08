@@ -1,10 +1,8 @@
 # Dev AI Testing Playbook — SA0 đến SA5
 
-**Owner:** Dung Nguyễn + Thắng Trương | **Tạo:** 2026-05-04
+**Owner:** Dung Nguyễn | **Tạo:** 2026-05-04
 **Áp dụng cho:** Tất cả Dev trong 3 Scrum Teams
-**Mục đích:** Dev tự test chất lượng cao trước khi handover QC — không cần QC hướng dẫn từng lần
-
-> ⚠️ **SA0 chưa được định nghĩa** — xem phần ghi chú cuối. Cần Dung confirm trước khi share cho Dev.
+**Mục đích:** Dev tự test chất lượng cao trước khi handover — không cần QC hướng dẫn từng lần
 
 ---
 
@@ -14,7 +12,7 @@
 Nhận ticket
     │
     ▼
-[SA0] ??? — Bước khởi động (cần confirm)
+[SA0] Context Setup — Xác lập context, hiểu ticket trước khi dùng AI
     │
     ▼
 [SA1] Requirement Clarifier — Phát hiện mâu thuẫn, assumption ẩn trong spec
@@ -254,13 +252,13 @@ Logs: [Paste error log nếu có]
 
 Trước khi tạo PR hoặc request QC handover:
 
-- [ ] SA0: _(cần confirm)_
+- [ ] SA0: Context comment đã viết vào ticket (3–5 dòng)
 - [ ] SA1: Đã clarify tất cả ambiguity với BA/PO — screenshot attached
 - [ ] SA2: Risk matrix đã review — High risks xác định rõ
 - [ ] SA3: Test scenarios đã execute — pass/fail recorded
 - [ ] SA4: Ít nhất 3 attack vectors đã thử
 - [ ] SA5: Chỉ khi có bug S1/S2 — RCA đã làm
-- [ ] Unit test ≥80% coverage (SonarQube)
+- [ ] Unit test ≥90% coverage cho code mới/changed (SonarQube)
 - [ ] DoR checklist đã điền đủ
 
 ---
@@ -286,4 +284,3 @@ SA1 output sẽ show ngay điều này. Dừng lại, hỏi BA/PO trước khi c
 
 ---
 
-> ✅ File hoàn chỉnh — SA0 đã được định nghĩa. Sẵn sàng share cho Dev sau khi align Dev Leads về DoR.

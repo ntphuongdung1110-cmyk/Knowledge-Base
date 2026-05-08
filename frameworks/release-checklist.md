@@ -1,35 +1,34 @@
 # Release Checklist
 
+**Owner:** QA + QC | **Cập nhật:** 2026-05-07
 **Dùng khi:** Chuẩn bị release lên Production
-**Cập nhật:** 2026-04-21
 
 ---
 
 ## Pre-Release (STG)
 
 ### Requirement
-- [ ] Requirement đã được QC review và confirm không còn mâu thuẫn
-- [ ] Acceptance criteria đã được define rõ
-- [ ] Edge cases và risk đã được identify (dùng Risk Scout nếu cần)
+- [ ] Acceptance criteria đã được define rõ, không còn mâu thuẫn
+- [ ] Edge cases và risk đã được identify (SA2 Risk Scout)
+- [ ] Tất cả tickets trong release đạt DoD ticket-level
 
 ### Test Execution
-- [ ] Test cases đã được viết đầy đủ
-- [ ] Test cases đã được peer review
+- [ ] Test cases đã được viết đủ, có review chéo
 - [ ] Tất cả test cases đã được thực thi trên STG
-- [ ] Bug critical/blocker = 0 trên STG
-- [ ] Bug major đã được fix hoặc có plan xử lý rõ ràng
-- [ ] Regression test đã pass
+- [ ] Không có S1/S2 bug còn open trên STG
+- [ ] S3/S4 nếu còn open: đã log Redmine, PM ack risk
+- [ ] Retest pass sau khi Dev fix
 
-### Technical
-- [ ] Code coverage ≥60% (SonarQube)
-- [ ] Không có critical/blocker issue trên SonarQube
-- [ ] Unit test pass
-- [ ] API test pass (nếu có thay đổi API)
+### Code Quality (SonarQube)
+- [ ] Unit test coverage ≥90% cho code mới/changed
+- [ ] 0 Blocker issue
+- [ ] 0 Critical issue
+- [ ] Security Hotspots: tất cả đã Resolved hoặc Accepted
 
-### Documentation
-- [ ] Test plan đã cập nhật
-- [ ] Bug report đã ghi đầy đủ
-- [ ] Lesson learned ghi chú (nếu có bug phức tạp)
+### QA Gate ← **Bước bắt buộc trước khi deploy**
+- [ ] QA Audit Report đã có (Tier 1) hoặc Spot-check pass (Tier 2)
+- [ ] QA decision = **GO** hoặc **GO WITH CONDITIONS** (conditions documented)
+- [ ] Nếu GO WITH CONDITIONS: PM đã ack bằng văn bản
 
 ---
 
@@ -38,9 +37,9 @@
 ### Deploy
 - [ ] Thông báo team trước khi deploy
 - [ ] Deployment window đã được chọn (tránh giờ cao điểm)
-- [ ] Rollback plan đã có
+- [ ] Rollback plan đã có và đã test
 
-### Smoke Test Production
+### Smoke Test Production (QC thực hiện)
 - [ ] Happy path chính đã pass
 - [ ] Integration với external service đã kiểm tra
 - [ ] Không có error mới trong logs
@@ -53,22 +52,26 @@
 - [ ] Monitor error rate trong 24h
 - [ ] Kiểm tra bug report từ user/CS
 - [ ] Cập nhật test case nếu phát hiện case mới
-- [ ] Ghi lesson learned vào BookStack
+- [ ] Ghi lesson learned vào BookStack nếu có incident
 
 ---
 
-## Risk Levels
+## Bug Severity — Release Decision
 
-| Level | Mô tả | Action |
+| Severity | Tên | Release action |
 |---|---|---|
-| 🔴 Critical | Crash, data loss, security breach | Block deploy ngay |
-| 🟠 Major | Core feature broken, wrong data | Fix trước deploy |
-| 🟡 Minor | UI bug, edge case | Có thể deploy, fix trong sprint sau |
-| 🟢 Trivial | Cosmetic, typo | Backlog |
+| **S1** | Critical | ❌ Block — QA NO-GO bắt buộc |
+| **S2** | Major | ❌ Block — QA NO-GO (hoặc GO WITH CONDITIONS nếu PM ack) |
+| **S3** | Minor | ✅ Release được — fix sprint sau |
+| **S4** | Trivial | ✅ Release được — backlog |
+
+> Định nghĩa đầy đủ: [Quality Standards](qa-quality-standards.md)
 
 ---
 
 ## Liên kết
 
+- [QA Quality Standards](qa-quality-standards.md) — Tiêu chuẩn chất lượng đầy đủ
+- [QA Audit Checklist](qa-audit-checklist.md) — QA gate criteria
 - [QC Testing Process](qc-testing-process.md)
-- [Templates — Sprint Review](../templates/sprint-review.md)
+- [QC Classification Matrix](qc-classification-matrix.md) — Tier của sản phẩm

@@ -1,7 +1,7 @@
 # QC Classification Matrix — Phân loại sản phẩm
 
-**Owner:** Dung Nguyễn | **Tạo:** 2026-05-04 | **Cập nhật:** 2026-05-06
-**Áp dụng cho:** 2 Quality Engineers (TBD — Thắng nghỉ việc, Khải → PO tháng 05/2026)
+**Owner:** Dung Nguyễn | **Tạo:** 2026-05-04 | **Cập nhật:** 2026-05-07
+**Áp dụng cho:** QC Engineers + QA
 
 ---
 
@@ -46,7 +46,7 @@ Xác định rõ sản phẩm nào cần **QC sweep bắt buộc**, sản phẩm
 | **Core API (Biz/POS)** | B2B revenue critical, API contract với partners | Voucher Service | TBD |
 | **Home Delivery** | External consumer, real-time coordination | User Solutions | TBD |
 | **Campaign Loyalty** | Financial logic (điểm/thưởng), rule phức tạp | Client Solutions | TBD |
-| **Biz Order** | B2B revenue, contract với doanh nghiệp | Voucher Service | Thắng (API) |
+| **Biz Order** | B2B revenue, contract với doanh nghiệp | Voucher Service | TBD |
 
 **Sweep trigger:** Mọi release có code change ở Tier 1 → sweep bắt buộc, không exception.
 
