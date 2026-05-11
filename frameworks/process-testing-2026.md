@@ -25,13 +25,12 @@ QA là **independent release gate** — không test lại toàn bộ, mà kiểm
 
 ## Phần 2 — Quy trình tổng thể
 
-### Flow 4 role × 4 phase
+### Flow 4 role × 3 phase
 
 | Phase | BA / PO | Dev | QC | QA |
 |---|---|---|---|---|
 | **🔵 SPRINT** | ① Viết spec + AC gắn Redmine | ② SA0–SA5 pipeline<br>③ SonarQube pass | — | — |
-| **🟡 STG TESTING** | Clarify khi QC hỏi | Fix S1/S2 bug (↺ loop với QC) | ④ DoR check<br>⑤ Viết TC<br>⑥ Test STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1 + L2) |
-| **🟠 PRE-RELEASE** | Sign-off nếu GO WITH CONDITIONS | Fix findings từ QA<br>S1/S2 phải fix trước R-day | — | ⑨ T-5 Early Warning<br>⑩ T-1 Compile Report<br>⑪ R-day GO/NO-GO |
+| **🟡 STG & RELEASE GATE** | Clarify khi QC hỏi · Sign-off nếu GO WITH CONDITIONS | Fix S1/S2 bug (↺ với QC) · Fix findings từ QA trước R-day | ④ DoR check<br>⑤ Viết TC<br>⑥ Test STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1+L2)<br>⑨ T-5 Early Warning<br>⑩ T-1 Compile Report<br>⑪ R-day GO/NO-GO |
 | **🔴 PRODUCTION** | — | Hotfix nếu bug escaped (SLA ≤8h) | ⑫ Smoke test production | ⑬ Monitor + RCA nếu bug escaped |
 
 ### Điểm handoff — Điều kiện bắt buộc
