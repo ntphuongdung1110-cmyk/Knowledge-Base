@@ -146,11 +146,13 @@ SPRINT 2 TUẦN — CÁI NHÌN TỔNG THỂ
           Mon      Tue      Wed      Thu      Fri
 Week 1  ┌────────┬────────┬────────┬────────┬────────┐
         │        │        │        │        │        │
-        │Dev code│Dev code│Dev code│QC test │QC test │
-        │SA pipe-│SA pipe-│SA pipe-│        │        │
-        │line    │line    │line    │  QA    │  QA    │
-        │        │        │        │rolling │rolling │
-        │        │        │        │audit   │audit   │
+        │Dev code│Dev code│Dev code│QC DoR  │QC exec │
+        │SA pipe-│SA pipe-│SA pipe-│check + │TC trên │
+        │line    │line    │line    │exec TC │STG     │
+        │        │        │        │        │        │
+        │QC phân │QC viết │QC viết │  QA    │  QA    │
+        │tích    │TC      │TC      │rolling │rolling │
+        │spec    │        │        │audit   │audit   │
         │        │        │Grooming│(tickets│(tickets│
         │        │        │[QA ✅] │Closed) │Closed) │
         └────────┴────────┴────────┴────────┴────────┘

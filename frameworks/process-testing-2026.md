@@ -29,8 +29,8 @@ QA là **independent release gate** — không test lại toàn bộ, mà kiểm
 
 | Phase | BA / PO | Dev | QC | QA |
 |---|---|---|---|---|
-| **🔵 SPRINT** | ① Viết spec + AC gắn Redmine | ② SA0–SA5 pipeline<br>③ SonarQube pass | — | — |
-| **🟡 STG & RELEASE GATE** | Clarify khi QC hỏi · Sign-off nếu GO WITH CONDITIONS | Fix S1/S2 bug (↺ với QC) · Fix findings từ QA trước R-day | ④ DoR check<br>⑤ Viết TC<br>⑥ Test STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1+L2)<br>⑨ R-day GO/NO-GO |
+| **🔵 SPRINT** | ① Viết spec + AC gắn Redmine | ② SA0–SA5 pipeline<br>③ SonarQube pass | ④ Phân tích spec + Viết TC | — |
+| **🟡 STG & RELEASE GATE** | Clarify khi QC hỏi · Sign-off nếu GO WITH CONDITIONS | Fix S1/S2 bug (↺ với QC) · Fix findings từ QA trước R-day | ⑤ DoR check<br>⑥ Execute TC trên STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1+L2)<br>⑨ R-day GO/NO-GO |
 | **🔴 PRODUCTION** | — | Hotfix nếu bug escaped (SLA ≤8h) | ⑫ Smoke test production | ⑬ Monitor + RCA nếu bug escaped |
 
 ### Điểm handoff — Điều kiện bắt buộc
