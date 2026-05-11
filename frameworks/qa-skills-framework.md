@@ -144,5 +144,5 @@ QA và QC là hai vai trò khác nhau về tư duy:
 
 - [QA Role Definition](qa-role-definition.md) — QA làm gì, không làm gì
 - [QA Job Description](qa-job-description.md) — Yêu cầu tuyển dụng đầy đủ
-- [QA Process](qa-process.md) — Quy trình hoạt động 4 nhịp
+- [QA Process](qa-process.md) — 5 quy trình hoạt động (rolling audit, release gate, RCA, quarterly)
 - [QA Audit Checklist](qa-audit-checklist.md) — Checklist Layer 1/2/3
