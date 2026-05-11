@@ -5,7 +5,7 @@
 
 ---
 
-## Pre-Release (STG)
+## STG Testing
 
 ### Requirement
 - [ ] Acceptance criteria đã được define rõ, không còn mâu thuẫn

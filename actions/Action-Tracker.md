@@ -2,7 +2,7 @@
 
 > Nguồn sự thật cho tất cả tasks đang mở. Cập nhật sau mỗi cuộc họp hoặc session làm việc.
 
-**Cập nhật:** 2026-05-04
+**Cập nhật:** 2026-05-08
 
 ---
 
@@ -71,6 +71,9 @@
 
 | # | Task | Mảng | Deadline | Owner | Nguồn |
 |---|---|---|---|---|---|
+| 1 | Bổ sung phần QC vào plan BizOrder + update timeline tổng | PD | Sau khi nhận tài liệu từ Hoàng | Dung | Project X Meeting 08/05 |
+| 2 | Book meeting align UI mới BizOrder với các bên liên quan | PD | 15/05/2026 | Dung | Project X Meeting 08/05 |
+| 3 | Phối hợp cùng 3 bạn chuẩn hóa tài liệu cho buổi sharing PD Team | PD | 11/05/2026 | Dung | Project X Meeting 08/05 |
 
 ---
 
