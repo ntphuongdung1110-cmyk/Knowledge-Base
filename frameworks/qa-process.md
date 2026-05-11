@@ -7,7 +7,7 @@
 
 ## Sơ đồ tổng quan
 
-QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
+QA có **5 quy trình chính**, chạy theo các nhịp khác nhau:
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
@@ -21,12 +21,12 @@ QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
 ║  │                                       (ngay khi ticket │      ║
 ║  │                                        QC approve)     │      ║
 ║  │  Grooming → Planning → Daily → Review → Retro          │      ║
-║  │  [QA]       [QA 30']            [QA]   [QA khi cần]   │      ║
+║  │  [QA]       [QA]                [QA]   [QA khi cần]   │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
 ║                              │                                   ║
 ║  R-DAY GATE                  │                                   ║
 ║  ┌───────────────────────────▼────────────────────────────┐      ║
-║  │  R-day: Smoke test STG → Go/No-Go → Deploy               │      ║
+║  │  R-day: Smoke test STG → Go/No-Go → Deploy              │      ║
 ║  │                ┌──────────┼──────────┐                  │      ║
 ║  │               GO       GO+COND    NO-GO                 │      ║
 ║  └────────────────┼─────────┼──────────┼───────────────────┘      ║
@@ -36,8 +36,8 @@ QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
 ║                   │                                              ║
 ║  PRODUCTION       │                                              ║
 ║  ┌────────────────▼───────────────────────────────────────┐      ║
-║  │  QC smoke test production (≤15 phút)                   │      ║
-║  │  QA monitor 24h đầu (error rate, bug reports)          │      ║
+║  │  QC smoke test production                               │      ║
+║  │  QA monitor sau deploy (error rate, bug reports)        │      ║
 ║  │  Nếu bug → QA Post-Incident RCA                        │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
 ║                                                                  ║
@@ -89,8 +89,8 @@ SPRINT CEREMONIES
 
   Grooming       Planning     Daily      Review      Retro
   ─────────       ────────    ──────    ────────    ──────
-  ✅ Attend       ✅ 30'      ❌ Không  ✅ Attend   ⚡ Khi cần
-  (full)          đầu
+  ✅ Attend       ✅          ❌ Không  ✅ Attend   ⚡ Khi cần
+  (full)          (đầu sprint)
 
   Release Planning (ngoài sprint)
   ─────────────────────────────
@@ -165,7 +165,7 @@ Week 2  ┌────────┬────────┬─────
         │        │rolling │rolling │        │Weekly  │
         │        │audit   │audit   │        │Report  │
         │Planning│        │        │        │        │
-        │[QA30'] │        │        │        │        │
+        │[QA ✅] │        │        │        │        │
         └────────┴────────┴────────┴────────┴────────┘
 
 Release day (ví dụ: Mon tuần 3)
@@ -306,10 +306,10 @@ Kiểm tra QC work:
                                   (phần lớn tickets đã done)
 
 Release day:
-  (Sáng)                         Layer 3: Smoke test STG
-                                  Critical flows (1–2 giờ)
+                                 Layer 3: Smoke test STG
+                                  Critical flows
                                        │
-  (Trưa)                          Go/No-Go Decision
+                                  Go/No-Go Decision
                                   + Gửi QA Audit Report
                                        │
                          ┌─────────────┼────────────┐
@@ -392,6 +392,26 @@ QA audit   PM/Dev request QA? ──Có──► QA audit (tự nguyện)
        Dev/QC tự chịu trách nhiệm
 ```
 
+### Mô tả các bước
+
+**Override triggers — khi nào Tier 2 cần QA audit:**
+
+| Trigger | Lý do |
+|---|---|
+| Change động đến financial flow (pricing, voucher, transaction) | Risk cao dù change nhỏ |
+| Data migration / schema change | Không thể rollback dễ |
+| Post-incident (liên quan đến Tier 2 flow) | Cần chứng minh không tái phát |
+| Nhiều Tier 2 tickets cùng một release | Risk cộng dồn |
+| PM/Dev Lead request | Discretionary — QA phán xét |
+
+**Khi audit Tier 2 "lighter" — nghĩa là:**
+- Layer 1: Kiểm tra SonarQube + acceptance criteria — bỏ qua SA evidence chi tiết nếu không phải financial
+- Layer 2: Sample 30–50% TCs thay vì toàn bộ
+- Không có smoke test riêng — rely on QC sweep
+- Không có formal QA Audit Report — ghi nhận vào weekly report là đủ
+
+**Khi không có QA gate:** Dev Lead và QC Lead tự sign off. Nếu bug escaped → QA sẽ RCA tại sao không có gate.
+
 ---
 
 ## Quy trình 4 — Post-Incident RCA
@@ -409,7 +429,8 @@ Bug phát hiện trên Production
   S1/S2         S3/S4
   Alert QA      QA nhận
   cùng ngày     cuối tuần
-           │
+    │             │
+    └──────┬──────┘
            ▼
   QA Process RCA (≤1 ngày làm việc)
   ──────────────────────────────────
@@ -481,6 +502,31 @@ Cuối quarter (tháng 3 / 6 / 9 / 12)
              → QA Manager + QC Manager + Dev Leads
              → Process improvement backlog Q+1
 ```
+
+### Mô tả các bước
+
+**Bước 1 — Pull metrics từ Redmine + SonarQube**
+
+Lấy data cho cả quarter, không chỉ sprint cuối:
+- Redmine: đếm DoR fail, bug severity, release block count
+- SonarQube: compliance rate trung bình theo project
+- QA log: audit cycle time trung bình, findings pattern
+
+**Bước 2 — Đánh giá theo 3 trục**
+
+| Trục | Câu hỏi | Hành động nếu lệch |
+|---|---|---|
+| Metrics | Có trend nào xấu đi không? | Xác định root cause, đưa vào backlog |
+| Process | Có bước nào team hay skip hoặc làm sai không? | Update playbook / DoR / checklist |
+| Tier | Ticket nào bị audit sai tier (quá nặng hoặc quá nhẹ)? | Adjust classification matrix |
+
+**Bước 3 — Quarterly QA Report**
+
+Gửi đến QA Manager + QC Manager + Dev Leads, bao gồm:
+- Metrics dashboard (vs target + trend)
+- Top 3 process gaps phát hiện trong quarter
+- Tier adjustment đề xuất (nếu có)
+- Process improvement backlog cho Q+1
 
 ---
 
@@ -558,7 +604,7 @@ checklist    rõ hơn
 | Loại finding | Gửi đến | Format | Khi nào |
 |---|---|---|---|
 | S1/S2 gap trong rolling audit | Dev Lead + QC Lead | Redmine comment + direct message ngay | Cùng ngày phát hiện |
-| Go/No-Go decision | Dev Lead + PM + QC Lead | QA Audit Report | Release day trưa |
+| Go/No-Go decision | Dev Lead + PM + QC Lead | QA Audit Report | Release day |
 | Spot-check patterns | QC Lead + QC Manager | Weekly Quality Report | Thứ Sáu |
 | Post-incident RCA | Dev Lead + PM + QC Lead | Process RCA doc | ≤1 ngày sau incident |
 | Process improvement | QA Manager + QC Manager + Dev Leads | Quarterly Report | Đầu quarter tiếp |
