@@ -24,12 +24,9 @@ QA có **4 quy trình chính**, chạy theo các nhịp khác nhau:
 ║  │  [QA]       [QA 30']            [QA]   [QA khi cần]   │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
 ║                              │                                   ║
-║  TRƯỚC RELEASE               │                                   ║
+║  R-DAY GATE                  │                                   ║
 ║  ┌───────────────────────────▼────────────────────────────┐      ║
-║  │  T-5: Early Warning Scan (30 phút)                      │      ║
-║  │  T-1: Finalize report (rolling done → chỉ compile)      │      ║
-║  │  R-day sáng: Smoke test STG (1–2 giờ)                   │      ║
-║  │  R-day trưa: Go/No-Go → Deploy                          │      ║
+║  │  R-day: Smoke test STG → Go/No-Go → Deploy               │      ║
 ║  │                ┌──────────┼──────────┐                  │      ║
 ║  │               GO       GO+COND    NO-GO                 │      ║
 ║  └────────────────┼─────────┼──────────┼───────────────────┘      ║
@@ -136,8 +133,8 @@ QA work async, không cần báo cáo daily. Nếu có finding cần alert → n
 **Release Planning** ✅ — Bắt buộc
 
 - Đây là lúc QA đặt audit window vào lịch release
-- Confirm release date → QA book T-5/T-1/Release day
-- Nếu release date không có buffer cho QA → phải re-negotiate ngay, không để đến T-2
+- Confirm release date → QA book R-day smoke test window
+- Nếu release date không có buffer cho QA → phải re-negotiate ngay, không để đến hôm trước
 
 ---
 
@@ -162,22 +159,22 @@ Week 1  ┌────────┬────────┬─────
 Week 2  ┌────────┬────────┬────────┬────────┬────────┐
         │        │        │        │        │        │
         │Dev fix │Dev fix │QC re-  │        │Sprint  │
-        │bugs    │bugs    │test    │T-5:    │Review  │
-        │        │        │        │Early   │[QA ✅] │
-        │        │  QA    │  QA    │Warning │        │
-        │        │rolling │rolling │Scan    │Weekly  │
-        │        │audit   │audit   │(30min) │Report  │
+        │bugs    │bugs    │test    │        │Review  │
+        │        │        │        │        │[QA ✅] │
+        │        │  QA    │  QA    │        │        │
+        │        │rolling │rolling │        │Weekly  │
+        │        │audit   │audit   │        │Report  │
         │Planning│        │        │        │        │
         │[QA30'] │        │        │        │        │
         └────────┴────────┴────────┴────────┴────────┘
 
 Release day (ví dụ: Mon tuần 3)
         ┌──────────────────────────────────────────┐
-        │ Sáng: QA Smoke Test STG (1–2 giờ)        │
-        │ Trưa: QA Go/No-Go → Gửi Audit Report     │
-        │ Chiều: Deploy Production                  │
-        │ → QC smoke test Production (15 phút)      │
-        │ → QA monitor kết quả + 24h watch          │
+        │ QA Smoke Test STG → Go/No-Go Decision    │
+        │ → Gửi QA Audit Report                    │
+        │ → Deploy Production                      │
+        │ → QC smoke test Production (≤15 phút)    │
+        │ → QA monitor kết quả + 24h watch         │
         └──────────────────────────────────────────┘
 ```
 
@@ -201,11 +198,9 @@ Ví dụ sprint có 10 Tier 1 + 5 Tier 2 tickets:
 |---|---|
 | Rolling audit Tier 1 (10 × 50 phút) | 8 giờ |
 | Rolling audit Tier 2 (5 × 25 phút) | 2 giờ |
-| T-5 Early Warning Scan | 30 phút |
-| T-1 Finalize report | 30–60 phút |
 | Release day smoke test + decision | 1–2 giờ |
 | Weekly Quality Report | 30 phút |
-| **Tổng** | **~13–14 giờ/sprint** |
+| **Tổng** | **~12 giờ/sprint** |
 
 > QA cần estimate thêm vào Sprint Planning để timeline không bị surprise.
 
@@ -297,7 +292,7 @@ Kiểm tra QC work:
 ## Quy trình 2 — Release Gate (Tier 1)
 
 > Nhờ rolling audit trong sprint, phần lớn tickets đã được audit xong.
-> Release gate chỉ còn: T-5 scan → T-1 compile → Smoke test → Decision.
+> Release gate chỉ còn: Smoke test STG → R-day Go/No-Go Decision.
 
 ### Sơ đồ
 
@@ -309,22 +304,6 @@ Kiểm tra QC work:
                                   Rolling audit từng ticket
                                   sau khi QC approve
                                   (phần lớn tickets đã done)
-
-T-5 ngày:                        Early Warning Scan (30 phút)
-                                  • SonarQube bất thường?
-                                  • DoR failure hệ thống?
-                                  • Tickets chưa audit?
-                                       │
-                                  ┌────┴────┐
-                                  ▼          ▼
-                             Ổn hết        Cần alert
-                                           Dev/QC ngay
-                                           → còn 5 ngày fix
-
-T-1 ngày:                        Finalize Audit Report
-  Confirm build                   (30–60 phút — chủ yếu compile)
-  version ────────────────►       Không audit lại đã done
-                                  Chỉ check tickets mới nhất
 
 Release day:
   (Sáng)                         Layer 3: Smoke test STG
@@ -350,22 +329,6 @@ Release day:
 ```
 
 ### Mô tả các bước
-
-**T-5: Early Warning Scan (30 phút)**
-
-Quét nhanh — không phải full audit, chỉ flag nếu có vấn đề hệ thống:
-- Vào SonarQube: có Blocker/Critical nào trên code trong release không?
-- Redmine: có tickets nào rõ ràng thiếu SA evidence không?
-- Tickets nào chưa được rolling audit → lên kế hoạch audit trong 3 ngày còn lại
-
-Nếu thấy vấn đề → alert ngay Dev Lead. Còn 5 ngày để fix, không phải 1 ngày.
-
-**T-1: Finalize Report (30–60 phút)**
-
-Vì rolling audit đã xong gần hết:
-- Compile tất cả audit results từ rolling
-- Audit nốt tickets mới nhất (nếu có)
-- Tạo draft QA Audit Report
 
 **Release day sáng: Smoke Test STG (1–2 giờ)**
 
@@ -579,8 +542,6 @@ checklist    rõ hơn
 | Hoạt động | SLA | Owner |
 |---|---|---|
 | QA audit ticket sau QC approve (rolling) | ≤1 ngày làm việc | QA |
-| T-5 Early Warning Scan | 30 phút | QA |
-| T-1 Finalize report | 30–60 phút | QA |
 | Release day smoke test + decision | ≤2 giờ | QA |
 | QA Audit Report gửi sau decision | Trong ngày | QA |
 | Dev/QC fix Quick findings | <2 giờ | Dev/QC |
