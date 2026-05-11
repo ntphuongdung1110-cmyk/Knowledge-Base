@@ -173,8 +173,8 @@ Release day (ví dụ: Mon tuần 3)
         │ QA Smoke Test STG → Go/No-Go Decision    │
         │ → Gửi QA Audit Report                    │
         │ → Deploy Production                      │
-        │ → QC smoke test Production (≤15 phút)    │
-        │ → QA monitor kết quả + 24h watch         │
+        │ → QC smoke test Production               │
+        │ → QA monitor kết quả sau deploy          │
         └──────────────────────────────────────────┘
 ```
 
@@ -330,7 +330,7 @@ Release day:
 
 ### Mô tả các bước
 
-**Release day sáng: Smoke Test STG (1–2 giờ)**
+**Smoke Test STG**
 
 QA tự thực hiện trên STG — chỉ critical flows liên quan đến release:
 - Consumer flows nếu có change: browse → mua → dùng voucher
@@ -338,7 +338,7 @@ QA tự thực hiện trên STG — chỉ critical flows liên quan đến relea
 - API nếu có change: auth → core request → idempotency
 - Sanity: không có 500 error, load time ổn
 
-**Release day trưa: Go/No-Go Decision**
+**Go/No-Go Decision**
 
 Hoàn thiện report và ra quyết định:
 
