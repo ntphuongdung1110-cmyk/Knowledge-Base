@@ -130,7 +130,7 @@ QA work async, không cần báo cáo daily. Nếu có finding cần alert → n
 **Release Planning** ✅ — Bắt buộc
 
 - Đây là lúc QA đặt audit window vào lịch release
-- Confirm release date → QA book R-day smoke test window
+- Confirm release date → QA book Smoke test L3 window
 - Nếu release date không có buffer cho QA → phải re-negotiate ngay, không để đến hôm trước
 
 ---
@@ -167,9 +167,9 @@ Week 2  ┌────────┬────────┬─────
         │[QA ✅] │        │        │        │        │
         └────────┴────────┴────────┴────────┴────────┘
 
-Release day (ví dụ: Mon tuần 3)
+STG Gate — cuối sprint (ví dụ: Mon tuần 3)
         ┌──────────────────────────────────────────┐
-        │ QA Smoke Test STG → Go/No-Go Decision    │
+        │ QA Smoke Test L3 (STG) → GO/NO-GO        │
         │ → Gửi QA Audit Report                    │
         │ → Deploy Production                      │
         │ → QC smoke test Production               │
@@ -181,7 +181,7 @@ Release day (ví dụ: Mon tuần 3)
 
 ## Time Estimation — QA
 
-### Per ticket (rolling audit trong sprint)
+### Per ticket (rolling audit)
 
 | Tier | QA audit time | Gồm |
 |---|---|---|
@@ -197,7 +197,7 @@ Ví dụ sprint có 10 Tier 1 + 5 Tier 2 tickets:
 |---|---|
 | Rolling audit Tier 1 (10 × 50 phút) | 8 giờ |
 | Rolling audit Tier 2 (5 × 25 phút) | 2 giờ |
-| Release day smoke test + decision | 1–2 giờ |
+| STG Gate: Smoke test L3 + GO/NO-GO | 1–2 giờ |
 | Weekly Quality Report | 30 phút |
 | **Tổng** | **~12 giờ/sprint** |
 
@@ -215,7 +215,7 @@ Khi QA phát hiện issue, phân loại ngay để team biết impact:
 
 ---
 
-## Quy trình 1 — Rolling Audit trong Sprint
+## Quy trình 1 — Rolling Audit
 
 ### Sơ đồ
 
@@ -290,7 +290,7 @@ Kiểm tra QC work:
 
 ## Quy trình 2 — STG Gate: Smoke test L3 + GO/NO-GO (Tier 1)
 
-> Nhờ rolling audit trong sprint, phần lớn tickets đã được audit xong.
+> Nhờ rolling audit (L1+L2) diễn ra ngay khi QC Approved trong STG Gate, phần lớn tickets đã được audit xong.
 > STG gate chỉ còn: QA Smoke test L3 (STG) → GO/NO-GO Decision.
 
 ### Sơ đồ
@@ -587,7 +587,7 @@ checklist    rõ hơn
 | Hoạt động | SLA | Owner |
 |---|---|---|
 | QA audit ticket sau QC approve (rolling) | ≤1 ngày làm việc | QA |
-| Release day smoke test + decision | ≤2 giờ | QA |
+| STG Gate: Smoke test L3 + GO/NO-GO | ≤2 giờ | QA |
 | QA Audit Report gửi sau decision | Trong ngày | QA |
 | Dev/QC fix Quick findings | <2 giờ | Dev/QC |
 | Dev/QC fix Medium findings | <1 ngày làm việc | Dev/QC |
@@ -603,7 +603,7 @@ checklist    rõ hơn
 | Loại finding | Gửi đến | Format | Khi nào |
 |---|---|---|---|
 | S1/S2 gap trong rolling audit | Dev Lead + QC Lead | Redmine comment + direct message ngay | Cùng ngày phát hiện |
-| Go/No-Go decision | Dev Lead + PM + QC Lead | QA Audit Report | Release day |
+| GO/NO-GO decision | Dev Lead + PM + QC Lead | QA Audit Report | Sau Smoke test L3 |
 | Spot-check patterns | QC Lead + QC Manager | Weekly Quality Report | Thứ Sáu |
 | Post-incident RCA | Dev Lead + PM + QC Lead | Process RCA doc | ≤1 ngày sau incident |
 | Process improvement | QA Manager + QC Manager + Dev Leads | Quarterly Report | Đầu quarter tiếp |
