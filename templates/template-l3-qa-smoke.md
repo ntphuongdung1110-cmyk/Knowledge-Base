@@ -1,4 +1,4 @@
-# Template — L3 QA Smoke Test
+# Template — L3 QA Smoke Test (AI-SDLC)
 
 > **Dán vào:** Comment của Redmine ticket sau khi QA hoàn thành smoke test trên STG
 > **Owner:** QA | **SLA:** ≤ 1 ngày làm việc sau L2 pass | **Env:** STG
@@ -13,16 +13,26 @@
 
 ---
 
-### L1 + L2 Pre-check
+### Pre-check — L1 + L2
 
-- [ ] L1 Dev evidence: tất cả 11 items PASS
-- [ ] L2 QC summary: "QC Approved" đã set + TC gap rate < 20%
+| # | Check | Status |
+|---|---|---|
+| 1 | L1: Technical Design + API Spec attached | ✅ / ❌ |
+| 2 | L1: Gate S3 sign-off confirmed (BA + Dev + QC) | ✅ / ❌ |
+| 3 | L1: SonarQube pass (Coverage ≥90%, Blocker/Critical = 0) | ✅ / ❌ |
+| 4 | L1: Code Review evidence present | ✅ / ❌ |
+| 5 | L2: Status "QC Approved" đã set | ✅ / ❌ |
+| 6 | L2: Critical + High — 100% Pass | ✅ / ❌ |
+| 7 | L2: Total pass rate ≥ 95% | ✅ / ❌ |
+| 8 | L2: AC coverage gap rate < 20% | ✅ / ❌ |
 
-_Nếu có items FAIL ở L1/L2 → KHÔNG thực hiện L3, notify Dev/QC fix trước._
+> Bất kỳ item nào ❌ → **KHÔNG thực hiện L3**, notify Dev/QC fix trước.
 
 ---
 
 ### Scope — Flows cần test
+
+> Source: Domain link (L1) + Technical Design (S3) để xác định affected flows
 
 **Story flows (core):**
 
@@ -31,11 +41,11 @@ _Nếu có items FAIL ở L1/L2 → KHÔNG thực hiện L3, notify Dev/QC fix t
 | 1 | | |
 | 2 | | |
 
-**Affected flows (manual identification qua code diff + SA2 risk matrix):**
+**Affected flows** _(xác định từ Technical Design S3 — modules/API thay đổi)_:
 
-| # | Flow | Lý do ảnh hưởng |
-|---|---|---|
-| 1 | | [Module / function bị thay đổi] |
+| # | Flow | Module/API bị thay đổi | Lý do ảnh hưởng |
+|---|---|---|---|
+| 1 | | | |
 
 ---
 
@@ -51,11 +61,17 @@ _Nếu có items FAIL ở L1/L2 → KHÔNG thực hiện L3, notify Dev/QC fix t
 - [ ] Không có 500 error / broken screen
 - [ ] Error state xử lý đúng (input lỗi → message rõ ràng)
 - [ ] Performance bình thường (không chậm bất thường)
-- [ ] Rollback plan xác nhận (nếu cần)
+- [ ] Known AI Deviations (từ L1) — đã verify trực tiếp trên STG
 
 ---
 
 ### GO / NO-GO
+
+| Điều kiện | Check |
+|---|---|
+| Không có story flow FAIL | ✅ / ❌ |
+| Không có affected flow FAIL critical | ✅ / ❌ |
+| Sanity check pass | ✅ / ❌ |
 
 **Quyết định:** `🟢 GO` / `🔴 NO-GO` / `🟡 GO WITH CONDITIONS`
 
@@ -64,7 +80,7 @@ _Nếu có items FAIL ở L1/L2 → KHÔNG thực hiện L3, notify Dev/QC fix t
 **Conditions (nếu GO WITH CONDITIONS):**
 
 - Condition:
-- Owner acknowledged: [Tên] — [ngày] — [link comment Redmine / email]
+- Risk acknowledged bởi: [Tên] — [ngày] — [link comment Redmine / email]
 
 ---
 
