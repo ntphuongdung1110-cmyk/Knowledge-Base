@@ -215,155 +215,73 @@ Khi QA phát hiện issue, phân loại ngay để team biết impact:
 
 ---
 
-## Quy trình 1 — STG Gate
+## Quy trình 1 — STG Gate (Per-story)
 
-STG Gate gồm **2 pha liên tiếp** trong cùng Staging environment:
-
-- **Phase A — Rolling Audit (L1+L2)** · per-ticket · ngay khi QC Approved · SLA ≤1 ngày/ticket
-- **Phase B — Smoke test L3 + GO/NO-GO** · 1 lần/sprint · khi tất cả tickets đã cleared L1+L2
-
-### Phase A — Rolling Audit (L1+L2)
-
-**Trigger:** QC set ticket = "QC Approved" → QA audit trong cùng ngày hoặc ngày làm việc tiếp theo.
-
-#### Sơ đồ
+Mỗi story/feature đi qua **1 gate** trên STG trước khi được phép deploy:
 
 ```
-                   Ticket lifecycle
-                   ─────────────────
-
-Dev code          QC test           QA audit
-─────────         ────────          ────────
-Ticket Open
+Dev done → push STG → QC bắt đầu test
     │
-Dev complete
-+ SA pipeline
+    ├─ QA: L1 audit (song song, không chờ QC done)
+    │      SA0–SA5 · SonarQube · AC pass/fail
+    │      Kết quả → flag ngay nếu có gap (Dev fix song song, QC không bị block)
     │
-    ▼
-QC DoR check ──► QC execute TC
-                    │
-              QC Approved?
-                    │
-              ┌─────┴──────┐
-              ▼             ▼
-           Pass          Fail → Dev fix
-              │
-              │  ← TRIGGER QA ROLLING AUDIT NGAY
-              ▼
-         QA audit Layer 1
-         (Dev evidence, 15–30 phút)
-              │
-         QA audit Layer 2
-         (QC work, 15–30 phút)
-              │
-         ┌────┴────┐
-         ▼          ▼
-       Pass        Gap?
-         │           │
-    Ghi nhận    Loại gap?
-    weekly      ├─ S1/S2 → Alert ngay Dev Lead + QC Lead
-    report      └─ S3/S4 → Ghi vào weekly report
+QC Approved
+    │
+    ├─ QA: L2 check (15–30 phút)
+    │      TC execution results · Coverage vs spec
+    │
+    ├─ QA: L3 Smoke test (15–30 phút, Tier 1)
+    │      Story flows + manually identified affected flows
+    │
+    └─ Pass → Story PASSED → GO/NO-GO → sẵn sàng deploy bất cứ lúc nào
 ```
 
-#### Mô tả các bước
+### L1 — Audit Dev evidence (song song QC testing)
 
-**Bước 1 — Trigger**
+**Start:** QC bắt đầu test — không chờ QC Approved.
+**Lý do:** Dev evidence (SA0–SA5, SonarQube) không thay đổi trong lúc QC test. Audit sớm → Dev fix sớm, không delay QC.
 
-QC approve ticket → QA nhận tín hiệu (Redmine status change) → bắt đầu audit trong cùng ngày hoặc ngày làm việc tiếp theo.
+| # | Bước | Nội dung | Output |
+|---|---|---|---|
+| 1 | **Start trigger** | QC bắt đầu test story trên STG | — |
+| 2 | **Audit L1** · 15–30 phút | SA0–SA5 đính kèm đúng format · SonarQube: ≥90% coverage · 0 Blocker · 0 Critical · AC từng item có pass/fail rõ | L1 result |
+| 3 | **Xử lý kết quả** | Pass → ghi nhận. S1/S2 gap → alert Dev Lead + QC Lead ngay (Redmine + direct message). Dev fix song song, QC tiếp tục test bình thường | Alert hoặc Pass |
 
-**Bước 2 — Audit Layer 1 (15–30 phút)**
+### L2 — Audit QC work (sau QC Approved)
 
-Kiểm tra Dev evidence — không hỏi Dev, evidence phải tự nói lên được:
-- SA0–SA5 evidence đính kèm đúng format
-- SonarQube link đính kèm, đạt chuẩn (≥90%, 0 Blocker, 0 Critical)
-- Acceptance criteria từng item có pass/fail rõ ràng
-- QA scan spec → liệt kê case thiếu trong SA3 (nếu có)
+**Start:** QC set ticket = "QC Approved".
+**Lý do:** TC execution results chỉ có giá trị khi QC đã finish — không audit giữa chừng.
 
-**Bước 3 — Audit Layer 2 (15–30 phút)**
+| # | Bước | Nội dung | Output |
+|---|---|---|---|
+| 1 | **Audit L2** · 15–30 phút | TC format đúng template chuẩn · Mọi TC có Status (không để trống) · Tính TC gap rate vs spec | L2 result + gap rate |
+| 2 | **Xử lý kết quả** | Pass → sang L3. S3/S4 gap → ghi report. S1/S2 gap → alert ngay, hold L3 cho đến khi QC bổ sung | Pass hoặc Alert |
 
-Kiểm tra QC work:
-- TC format đúng template chuẩn trên SharePoint
-- Mọi TC có Status — không để trống
-- Scan spec → TC list → tính TC gap rate (số case thiếu / tổng spec cases)
+### L3 — Smoke test (sau L2 pass, Tier 1)
 
-**Bước 4 — Xử lý kết quả**
+**Start:** L2 pass + QC Approved.
+**Scope:** Story flows + manually identified affected flows.
 
-| Kết quả | Hành động |
-|---|---|
-| Pass | Ghi ticket vào "audit done" list → tổng hợp weekly report |
-| S3/S4 gap | Ghi vào report, theo dõi pattern |
-| S1/S2 gap | Alert ngay Dev Lead + QC Lead trong ngày |
+**Cách xác định affected flows:**
+- Đọc code diff / SA2 risk matrix của story → module nào bị touch?
+- Map module → flows trong hệ thống (domain knowledge QA)
+- Ví dụ: story thay đổi `voucher-redemption-service` → test thêm: checkout, wallet balance, transaction history
 
----
+| # | Bước | Nội dung | Output |
+|---|---|---|---|
+| 1 | **Identify scope** | Story flows + affected flows từ code diff / SA2 | Smoke test checklist |
+| 2 | **Smoke test** · 15–30 phút | Chạy critical flows trong scope trên STG | Smoke result |
+| 3 | **GO/NO-GO** | Pass → Story PASSED. Fail → phân loại finding (Quick/Medium/Complex) | GO/NO-GO |
+| 4 | **Gửi report** | QA Audit Report → Dev Lead + PO + QC Lead | Report |
 
-### Phase B — Smoke test L3 + GO/NO-GO
-
-**Trigger:** Tất cả tickets L1+L2 cleared · Cuối sprint · 1 lần/sprint · ≤2 giờ
-
-Nhờ Phase A đã audit từng ticket xong, Phase B chỉ còn: QA Smoke test L3 (STG) → GO/NO-GO Decision.
-
-#### Sơ đồ
-
-```
-[Cuối sprint — khi tất cả tickets L1+L2 cleared]:
-
-                              QA
-                         ──────────
-                        L3: Smoke test STG
-                         Critical flows
-                              │
-                        GO/NO-GO Decision
-                        + Gửi QA Audit Report
-                              │
-              ┌───────────────┼────────────────┐
-              ▼               ▼                ▼
-           🟢 GO         🟡 GO+COND        🔴 NO-GO
-              │               │                │
-           Deploy           PM ack         Phân loại
-          Production       + Deploy         findings
-              │             + doc risk    (Quick/Medium/
-        QC smoke test   QC smoke test       Complex)
-         production      production             │
-              │               │            Dev/QC fix
-         QA monitor       QA monitor       QA re-verify
-            24h              24h              (≤4h)
-```
-
-#### Mô tả các bước
-
-**Smoke Test STG**
-
-QA tự thực hiện trên STG — chỉ critical flows liên quan đến release:
-- Consumer flows: browse → mua → dùng voucher
-- Campaign/Loyalty: tham gia → nhận thưởng → verify điểm
-- API: auth → core request → idempotency
-- Sanity: không có 500 error, load time ổn
-
-**GO/NO-GO Decision**
+**GO/NO-GO conditions:**
 
 | Quyết định | Điều kiện |
 |---|---|
-| 🟢 GO | Tất cả criteria pass |
-| 🟡 GO WITH CONDITIONS | S2 bug có workaround + PM ack; TC gap <20% và smoke test cover |
-| 🔴 NO-GO | S1 open / SonarQube Blocker / TC gap >30% / smoke test fail |
-
-**Nếu NO-GO — phân loại findings ngay:**
-
-| Loại | Fix time ước tính | Timeline impact |
-|---|---|---|
-| Quick fix | <2 giờ | Release cùng ngày |
-| Medium | <1 ngày | Delay 1 ngày |
-| Complex | >1 ngày | Re-schedule release |
-
-Gửi QA Audit Report đến: Dev Lead + PM + QC Lead.
-
-**Post-deploy: Production verification**
-
-- QC thực hiện smoke test production (≤15 phút, critical flows)
-- QC báo kết quả cho QA
-- QA monitor 24h đầu: error rate, bug reports từ CS/user
-
----
+| ✅ GO | L1+L2+L3 pass · Không có S1/S2 open |
+| ⚠️ GO WITH CONDITIONS | S2 open + workaround + PO ack văn bản |
+| ❌ NO-GO | S1 open · SonarQube Blocker/Critical · TC gap >30% · Smoke fail |
 
 ### Tier 2 — Audit nhẹ hơn (khi có override trigger)
 
@@ -376,9 +294,9 @@ Gửi QA Audit Report đến: Dev Lead + PM + QC Lead.
 | PM/Dev Lead request | Discretionary — QA phán xét |
 
 **Khi audit Tier 2 "lighter":**
-- Layer 1: Kiểm tra SonarQube + AC — bỏ qua SA evidence chi tiết nếu không phải financial
-- Layer 2: Sample 30–50% TCs thay vì toàn bộ
-- Không có smoke test riêng — rely on QC sweep
+- L1: Kiểm tra SonarQube + AC — bỏ qua SA evidence chi tiết nếu không phải financial
+- L2: Sample 30–50% TCs thay vì toàn bộ
+- L3: Không bắt buộc — rely on QC sweep (trừ khi có override trigger cao)
 - Không có formal QA Audit Report — ghi nhận vào weekly report là đủ
 
 **Khi không có QA gate:** Dev Lead và QC Lead tự sign off. Nếu bug escaped → QA sẽ RCA tại sao không có gate.
@@ -584,6 +502,46 @@ checklist    rõ hơn
 - Findings kèm **evidence cụ thể**, không phán xét chung chung
 - Tone: "Spec mục X không có TC tương ứng" — không "QC làm thiếu"
 - QA không blame cá nhân — focus vào process gap
+
+---
+
+## Roadmap — Process Evolution
+
+### Phase 1 — Hiện tại (manual impact identification)
+
+Đang áp dụng. L3 scope xác định thủ công: QA đọc code diff + SA2 risk matrix → tự map ra affected flows.
+
+**Điều kiện để chuyển Phase 2:** automation coverage ≥70% + CI/CD pipeline stable + có owner maintain tag map.
+
+---
+
+### Phase 2 — Tag-based Test Impact Analysis (khi automation mature)
+
+**Nguyên lý:**
+- Dev gắn tag cho mỗi module/service bị thay đổi trong story
+- CI/CD tự động trigger automation test cases tagged với các module đó
+- QA L3: validate tag accuracy + manual spot-check high-risk flows (không re-run toàn bộ)
+
+**Flow Phase 2:**
+```
+Story thay đổi module X
+    │
+    ├─ Dev tag: ["module_x", "flow_a", "flow_b"]
+    │
+    ├─ CI/CD: trigger automation tests tagged với những flows đó
+    │          Kết quả: auto pass/fail
+    │
+    └─ QA L3: verify tag đúng chưa + manual smoke flow có risk cao nhất
+```
+
+**Lợi ích so với Phase 1:**
+- Loại bỏ rủi ro QA miss affected flow do không biết dependency
+- Giảm manual L3 time — QA tập trung vào validation thay vì execution
+- Coverage tăng mà không tăng QA workload
+
+**Rủi ro cần quản lý:**
+- Tag stale: Dev thêm dependency mới nhưng không update tag → automation pass nhưng thực ra miss flows
+- Mitigation: QA review tag accuracy là một phần của L1 audit khi Phase 2 active
 
 ---
 
