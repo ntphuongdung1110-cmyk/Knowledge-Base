@@ -7,7 +7,7 @@
 
 ## Sơ đồ tổng quan
 
-QA có **5 quy trình chính**, chạy theo các nhịp khác nhau:
+QA có **3 quy trình chính**, chạy theo các nhịp khác nhau:
 
 ```
 ╔══════════════════════════════════════════════════════════════════╗
@@ -215,26 +215,34 @@ Khi QA phát hiện issue, phân loại ngay để team biết impact:
 
 ---
 
-## Quy trình 1 — Rolling Audit
+## Quy trình 1 — STG Gate
 
-### Sơ đồ
+STG Gate gồm **2 pha liên tiếp** trong cùng Staging environment:
+
+- **Phase A — Rolling Audit (L1+L2)** · per-ticket · ngay khi QC Approved · SLA ≤1 ngày/ticket
+- **Phase B — Smoke test L3 + GO/NO-GO** · 1 lần/sprint · khi tất cả tickets đã cleared L1+L2
+
+### Phase A — Rolling Audit (L1+L2)
+
+**Trigger:** QC set ticket = "QC Approved" → QA audit trong cùng ngày hoặc ngày làm việc tiếp theo.
+
+#### Sơ đồ
 
 ```
-                   Ticket lifecycle trong sprint
-                   ─────────────────────────────
+                   Ticket lifecycle
+                   ─────────────────
 
-Dev code          QC test          QA audit
-─────────         ────────         ────────
+Dev code          QC test           QA audit
+─────────         ────────          ────────
 Ticket Open
     │
 Dev complete
 + SA pipeline
-+ DoR done
     │
     ▼
-QC receives ──► QC sweep/test
+QC DoR check ──► QC execute TC
                     │
-              QC approve?
+              QC Approved?
                     │
               ┌─────┴──────┐
               ▼             ▼
@@ -257,11 +265,11 @@ QC receives ──► QC sweep/test
     report      └─ S3/S4 → Ghi vào weekly report
 ```
 
-### Mô tả các bước
+#### Mô tả các bước
 
-**Bước 1 — Trigger (ngay khi QC approve ticket)**
+**Bước 1 — Trigger**
 
-QC approve ticket → QA nhận tín hiệu (Redmine status change) → bắt đầu audit trong cùng ngày hoặc ngày làm việc tiếp theo. Không đợi đến T-2.
+QC approve ticket → QA nhận tín hiệu (Redmine status change) → bắt đầu audit trong cùng ngày hoặc ngày làm việc tiếp theo.
 
 **Bước 2 — Audit Layer 1 (15–30 phút)**
 
@@ -288,58 +296,50 @@ Kiểm tra QC work:
 
 ---
 
-## Quy trình 2 — STG Gate: Smoke test L3 + GO/NO-GO (Tier 1)
+### Phase B — Smoke test L3 + GO/NO-GO
 
-> Nhờ rolling audit (L1+L2) diễn ra ngay khi QC Approved trong STG Gate, phần lớn tickets đã được audit xong.
-> STG gate chỉ còn: QA Smoke test L3 (STG) → GO/NO-GO Decision.
+**Trigger:** Tất cả tickets L1+L2 cleared · Cuối sprint · 1 lần/sprint · ≤2 giờ
 
-### Sơ đồ
+Nhờ Phase A đã audit từng ticket xong, Phase B chỉ còn: QA Smoke test L3 (STG) → GO/NO-GO Decision.
+
+#### Sơ đồ
 
 ```
-         PM / Dev Lead                    QA                     Outcome
-         ─────────────               ──────────               ──────────
+[Cuối sprint — khi tất cả tickets L1+L2 cleared]:
 
-[Trong sprint — rolling]:
-                                  L1+L2: Rolling audit từng ticket
-                                  sau khi QC approve
-                                  (phần lớn tickets đã done)
-
-[Cuối sprint — khi tất cả tickets QC Approved]:
-                                 L3: Smoke test STG
-                                  Critical flows
-                                       │
-                                  Go/No-Go Decision
-                                  + Gửi QA Audit Report
-                                       │
-                         ┌─────────────┼────────────┐
-                         ▼             ▼             ▼
-                      🟢 GO       🟡 GO+COND     🔴 NO-GO
-                         │             │             │
-                      Deploy        PM ack        Phân loại
-                     Production    + Deploy        findings
-                         │         + doc risk   (Quick/Medium/
-                         │             │          Complex)
-                   QC smoke test  QC smoke test      │
-                   production      production    Dev/QC fix
-                         │             │         (SLA theo loại)
-                   QA monitor     QA monitor         │
-                      24h            24h         QA re-verify
-                                                    (≤4h)
+                              QA
+                         ──────────
+                        L3: Smoke test STG
+                         Critical flows
+                              │
+                        GO/NO-GO Decision
+                        + Gửi QA Audit Report
+                              │
+              ┌───────────────┼────────────────┐
+              ▼               ▼                ▼
+           🟢 GO         🟡 GO+COND        🔴 NO-GO
+              │               │                │
+           Deploy           PM ack         Phân loại
+          Production       + Deploy         findings
+              │             + doc risk    (Quick/Medium/
+        QC smoke test   QC smoke test       Complex)
+         production      production             │
+              │               │            Dev/QC fix
+         QA monitor       QA monitor       QA re-verify
+            24h              24h              (≤4h)
 ```
 
-### Mô tả các bước
+#### Mô tả các bước
 
 **Smoke Test STG**
 
 QA tự thực hiện trên STG — chỉ critical flows liên quan đến release:
-- Consumer flows nếu có change: browse → mua → dùng voucher
-- Campaign/Loyalty nếu có change: tham gia → nhận thưởng → verify điểm
-- API nếu có change: auth → core request → idempotency
+- Consumer flows: browse → mua → dùng voucher
+- Campaign/Loyalty: tham gia → nhận thưởng → verify điểm
+- API: auth → core request → idempotency
 - Sanity: không có 500 error, load time ổn
 
-**Go/No-Go Decision**
-
-Hoàn thiện report và ra quyết định:
+**GO/NO-GO Decision**
 
 | Quyết định | Điều kiện |
 |---|---|
@@ -365,35 +365,7 @@ Gửi QA Audit Report đến: Dev Lead + PM + QC Lead.
 
 ---
 
-## Quy trình 3 — Release Gate (Tier 2)
-
-### Sơ đồ
-
-```
-Tier 2 release
-      │
-      ▼
-   Override trigger?
-   (financial change, migration,
-    post-incident, nhiều Tier 2
-    đổi cùng release, risk signal)
-      │
-   ┌──┴──┐
-   ▼     ▼
-  Có    Không
-   │       │
-QA audit   PM/Dev request QA? ──Có──► QA audit (tự nguyện)
-(như Tier 1  │
- lighter)    Không
-             │
-             ▼
-       Không có QA gate
-       Dev/QC tự chịu trách nhiệm
-```
-
-### Mô tả các bước
-
-**Override triggers — khi nào Tier 2 cần QA audit:**
+### Tier 2 — Audit nhẹ hơn (khi có override trigger)
 
 | Trigger | Lý do |
 |---|---|
@@ -403,8 +375,8 @@ QA audit   PM/Dev request QA? ──Có──► QA audit (tự nguyện)
 | Nhiều Tier 2 tickets cùng một release | Risk cộng dồn |
 | PM/Dev Lead request | Discretionary — QA phán xét |
 
-**Khi audit Tier 2 "lighter" — nghĩa là:**
-- Layer 1: Kiểm tra SonarQube + acceptance criteria — bỏ qua SA evidence chi tiết nếu không phải financial
+**Khi audit Tier 2 "lighter":**
+- Layer 1: Kiểm tra SonarQube + AC — bỏ qua SA evidence chi tiết nếu không phải financial
 - Layer 2: Sample 30–50% TCs thay vì toàn bộ
 - Không có smoke test riêng — rely on QC sweep
 - Không có formal QA Audit Report — ghi nhận vào weekly report là đủ
@@ -413,7 +385,7 @@ QA audit   PM/Dev request QA? ──Có──► QA audit (tự nguyện)
 
 ---
 
-## Quy trình 4 — Post-Incident RCA
+## Quy trình 2 — Post-Incident RCA
 
 ### Sơ đồ
 
@@ -470,7 +442,7 @@ Bug phát hiện trên Production
 
 ---
 
-## Quy trình 5 — Quarterly Review
+## Quy trình 3 — Quarterly Review
 
 ### Sơ đồ
 
