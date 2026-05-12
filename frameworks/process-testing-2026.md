@@ -1,7 +1,7 @@
 # Quy Trình Testing 2026 — QA Gate
 
 **Version:** 1.0 | **Owner:** QA Manager — Dung Nguyễn | **Hiệu lực:** 2026-05-01
-**Cập nhật:** 2026-05-11 | **Áp dụng:** Toàn team PD (BA/PO · Dev · QC · QA) · Leadership
+**Cập nhật:** 2026-05-12 | **Áp dụng:** Toàn team PD (BA/PO · Dev · QC · QA) · Leadership
 
 ---
 
@@ -30,8 +30,8 @@ QA là **independent release gate** — không test lại toàn bộ, mà kiểm
 | Phase | BA / PO | Dev | QC | QA |
 |---|---|---|---|---|
 | **🔵 SPRINT** | ① Viết spec + AC gắn Redmine | ② SA0–SA5 pipeline<br>③ SonarQube pass | ④ Phân tích spec + Viết TC | — |
-| **🟡 STG & RELEASE GATE** | Clarify khi QC hỏi · Sign-off nếu GO WITH CONDITIONS | Fix S1/S2 bug (↺ với QC) · Fix findings từ QA trước R-day | ⑤ DoR check<br>⑥ Execute TC trên STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1+L2)<br>⑨ R-day GO/NO-GO |
-| **🔴 PRODUCTION** | — | Hotfix nếu bug escaped (SLA ≤8h) | ⑫ Smoke test production | ⑬ Monitor + RCA nếu bug escaped |
+| **🟡 STG** | Clarify khi QC hỏi · Sign-off nếu GO WITH CONDITIONS | Fix S1/S2 bug (↺ với QC) · Fix findings từ QA | ⑤ DoR check<br>⑥ Execute TC trên STG<br>⑦ Set "QC Approved" | ⑧ Rolling Audit (L1+L2)<br>⑨ Smoke test L3 → GO/NO-GO |
+| **🔴 PRODUCTION** | — | Hotfix nếu bug escaped (SLA ≤8h) | ⑩ Smoke test production | ⑪ Monitor + RCA nếu bug escaped |
 
 ### Điểm handoff — Điều kiện bắt buộc
 
@@ -40,13 +40,15 @@ QA là **independent release gate** — không test lại toàn bộ, mà kiểm
 | BA/PO | Dev | Spec + AC hoàn chỉnh, gắn Redmine trước kick-off |
 | Dev | QC | SA0–SA4 đủ · SonarQube pass · DoR self-check OK |
 | QC | QA | Ticket = "QC Approved" · S1/S2 resolved · S3/S4 logged đầy đủ |
-| QA (R-day) | Production | Smoke test pass · GO hoặc GO WITH CONDITIONS (có văn bản) |
+| QA | Production | Smoke test L3 pass · GO hoặc GO WITH CONDITIONS (có văn bản) |
+
+> **Exception — Release bị hold:** Nếu một số tickets cần ghép với sprint khác trước khi deploy, gắn tất cả vào **Redmine Version** của release đó (status: Open). QA thực hiện Smoke test L3 lại trước khi version được Closed và deploy thực tế.
 
 ---
 
 ## Phần 3 — GO/NO-GO Gate & Escalation
 
-### R-day Decision
+### GO/NO-GO Decision
 
 | Quyết định | Điều kiện | Action |
 |---|---|---|
@@ -128,7 +130,7 @@ PM gặp QA Manager  (không pressure QA trực tiếp)
 | Loại finding | Gửi đến | Khi nào |
 |---|---|---|
 | S1/S2 gap trong rolling audit | Dev Lead + QC Lead (Redmine + direct message) | Cùng ngày phát hiện |
-| GO/NO-GO decision | Dev Lead + PM + QC Lead (QA Audit Report) | R-day |
+| GO/NO-GO decision | Dev Lead + PM + QC Lead (QA Audit Report) | Sau Smoke test L3 |
 | Pattern gaps (S3/S4) | QC Lead + QC Manager (Weekly Report) | Thứ Sáu hàng tuần |
 | Bug escaped to production | Dev Lead + PM + QC Lead (Process RCA doc) | ≤ 1 ngày sau incident |
 
@@ -160,7 +162,7 @@ Metrics được pull từ Redmine + SonarQube. Report gửi QA Manager + QC Man
 | Daily Standup | ❌ Không | QA work async — alert trực tiếp khi cần |
 | Sprint Review | ✅ Observe | Verify evidence pattern, input cho sprint sau |
 | Retrospective | ⚡ Khi có quality issue | Gửi findings summary, không attend thường xuyên |
-| Release Planning | ✅ Bắt buộc | Book R-day audit window vào lịch release ngay |
+| Release Planning | ✅ Bắt buộc | Book Smoke test L3 window vào lịch release ngay |
 
 ### Quarterly Review (tháng 3 · 6 · 9 · 12)
 
@@ -172,10 +174,10 @@ Pull metrics → Đánh giá 3 trục: **Metrics trend** · **Process gaps** · 
 
 | Tài liệu | Mô tả |
 |---|---|
-| [QA Process — Nội bộ QA](qa-process.md) | 5 quy trình chi tiết của QA team (rolling audit, release gate, RCA, quarterly) |
+| [QA Process — Nội bộ QA](qa-process.md) | 5 quy trình chi tiết của QA team (rolling audit, STG gate, RCA, quarterly) |
 | [QA Audit Checklist](qa-audit-checklist.md) | Checklist đầy đủ Layer 1/2/3 |
 | [QC Classification Matrix](qc-classification-matrix.md) | Tier 1/2/3 — ticket nào cần audit mức nào |
 | [Dev Test DoR](dev-test-dor.md) | Điều kiện Dev phải đạt trước khi handover QC |
 | [Dev AI Testing Playbook](dev-ai-testing-playbook.md) | Hướng dẫn SA0–SA5 từng bước |
 | [QC Sweep Checklist](qc-sweep-checklist.md) | QC làm gì sau khi nhận ticket |
-| [QA Audit Report template](../templates/report-qa-audit.md) | Format report gửi sau R-day decision |
+| [QA Audit Report template](../templates/report-qa-audit.md) | Format report gửi sau GO/NO-GO decision |

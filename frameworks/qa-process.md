@@ -14,25 +14,22 @@ QA có **5 quy trình chính**, chạy theo các nhịp khác nhau:
 ║                    QA PROCESS — BỨC TRANH TỔNG THỂ              ║
 ╠══════════════════════════════════════════════════════════════════╣
 ║                                                                  ║
-║  SPRINT (2 tuần — lặp liên tục)                                  ║
+║  SPRINT + STG (2 tuần — lặp liên tục)                            ║
 ║  ┌────────────────────────────────────────────────────────┐      ║
 ║  │                                                        │      ║
-║  │  Dev──[SA0–SA5+DoR]──► QC──[sweep]──► QA ROLLING AUDIT│      ║
-║  │                                       (ngay khi ticket │      ║
+║  │  QC viết TC (song song Dev coding)                     │      ║
+║  │  Dev──[SA0–SA5]──► QC──[DoR+Execute TC]──► QA L1+L2   │      ║
+║  │                                       (rolling audit   │      ║
+║  │                                        ngay khi ticket │      ║
 ║  │                                        QC approve)     │      ║
-║  │  Grooming → Planning → Daily → Review → Retro          │      ║
-║  │  [QA]       [QA]                [QA]   [QA khi cần]   │      ║
+║  │                        ▼                               │      ║
+║  │                 QA Smoke test L3 (STG)                 │      ║
+║  │                 → GO/NO-GO → Deploy                    │      ║
 ║  └────────────────────────────────────────────────────────┘      ║
-║                              │                                   ║
-║  R-DAY GATE                  │                                   ║
-║  ┌───────────────────────────▼────────────────────────────┐      ║
-║  │  R-day: Smoke test STG → Go/No-Go → Deploy              │      ║
-║  │                ┌──────────┼──────────┐                  │      ║
-║  │               GO       GO+COND    NO-GO                 │      ║
-║  └────────────────┼─────────┼──────────┼───────────────────┘      ║
-║                   │         │          │                          ║
-║              Deploy    Deploy+doc   Dev/QC fix                   ║
-║              Prod       risk        → re-audit                   ║
+║                   │         │          │                         ║
+║                  GO      GO+COND    NO-GO                        ║
+║              Deploy     Deploy+doc  Dev/QC fix                   ║
+║              Prod        risk       → re-audit                   ║
 ║                   │                                              ║
 ║  PRODUCTION       │                                              ║
 ║  ┌────────────────▼───────────────────────────────────────┐      ║
@@ -94,7 +91,7 @@ SPRINT CEREMONIES
 
   Release Planning (ngoài sprint)
   ─────────────────────────────
-  ✅ Bắt buộc — đặt audit window vào lịch release
+  ✅ Bắt buộc — đặt Smoke test L3 window vào lịch release
 ```
 
 ### Chi tiết từng ceremony
@@ -291,10 +288,10 @@ Kiểm tra QC work:
 
 ---
 
-## Quy trình 2 — Release Gate (Tier 1)
+## Quy trình 2 — STG Gate: Smoke test L3 + GO/NO-GO (Tier 1)
 
 > Nhờ rolling audit trong sprint, phần lớn tickets đã được audit xong.
-> Release gate chỉ còn: Smoke test STG → R-day Go/No-Go Decision.
+> STG gate chỉ còn: QA Smoke test L3 (STG) → GO/NO-GO Decision.
 
 ### Sơ đồ
 
@@ -302,13 +299,13 @@ Kiểm tra QC work:
          PM / Dev Lead                    QA                     Outcome
          ─────────────               ──────────               ──────────
 
-[Trong sprint]:
-                                  Rolling audit từng ticket
+[Trong sprint — rolling]:
+                                  L1+L2: Rolling audit từng ticket
                                   sau khi QC approve
                                   (phần lớn tickets đã done)
 
-Release day:
-                                 Layer 3: Smoke test STG
+[Cuối sprint — khi tất cả tickets QC Approved]:
+                                 L3: Smoke test STG
                                   Critical flows
                                        │
                                   Go/No-Go Decision
