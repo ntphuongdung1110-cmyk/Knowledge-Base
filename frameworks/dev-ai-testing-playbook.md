@@ -302,19 +302,35 @@ check-ai-tag:
 
 ---
 
-## Checklist hoàn thành pipeline
+## Enforcement — 3 lớp kiểm soát
 
-Trước khi tạo PR hoặc request QC handover:
+Quality và AI compliance được enforce qua 3 lớp — không phụ thuộc vào self-report.
 
-- [ ] SA0: Context comment đã viết vào ticket (3–5 dòng)
-- [ ] SA1: Đã clarify tất cả ambiguity với BA/PO — screenshot attached
-- [ ] SA2: Risk matrix đã review — High risks xác định rõ
-- [ ] SA3: Test scenarios đã execute — pass/fail recorded
-- [ ] SA4: Ít nhất 3 attack vectors đã thử
-- [ ] SA5: Chỉ khi có bug S1/S2 — RCA đã làm
-- [ ] Unit test ≥90% coverage cho code mới/changed (SonarQube)
-- [ ] **Tất cả commit có tag `[AI]`, `[HUMAN]`, hoặc `[MIX]`**
-- [ ] DoR checklist đã điền đủ
+### Lớp 1 — Automated Gates (hệ thống tự block, không bypass được)
+
+| Gate | Tool | Kết quả nếu fail |
+|---|---|---|
+| Commit thiếu `[AI/HUMAN/MIX]` tag | GitLab Push Rule | Block push |
+| SonarQube quality gate fail | CI/CD | Block merge |
+| Unit test coverage < 90% | CI/CD | Block merge |
+| Pipeline CI fail | GitLab | Block merge |
+
+### Lớp 2 — MR Checklist (5 items, < 3 phút)
+
+Dev tự xác nhận khi tạo MR. Evidence nằm trong Redmine ticket — không cần copy lại vào MR.
+
+- [ ] SA pipeline đã chạy đủ — evidence ghi trong ticket comment
+- [ ] Self-review code với AI trước khi tạo MR
+- [ ] Các luồng liên quan đã test (không chỉ happy path)
+- [ ] Không có breaking change chưa thông báo
+- [ ] Commit tags đúng `[AI]` / `[HUMAN]` / `[MIX]`
+
+### Lớp 3 — Sampling Audit (mỗi sprint, QC/Manager)
+
+Chọn ngẫu nhiên 3 MR/sprint, hỏi dev trong sprint retro:
+> *"Walk me through MR này — SA1 clarify được gì, SA3 tìm ra risk nào cao nhất?"*
+
+15 phút/sprint. Dev biết có thể bị hỏi bất cứ lúc nào → làm thật, không fill form đại.
 
 ---
 

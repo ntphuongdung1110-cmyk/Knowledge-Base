@@ -1,79 +1,49 @@
 # GitLab MR Template — Bug Fix
 
-**Cách dùng:** Copy nội dung phần "MR Template" vào file:
-`.gitlab/merge_request_templates/bugfix.md` trong GitLab project.
+**Cách dùng:** Copy nội dung trong khối markdown bên dưới vào:
+`.gitlab/merge_request_templates/bugfix.md`
 
 ---
 
 ## MR Template
 
 ```markdown
-## 🐛 Bug Fix
-- Redmine bug: #[ID]
+## Bug Fix Info
+- Ticket: #[ID]
 - Severity: S1 / S2 / S3 / S4
 - Môi trường phát hiện: DEV / STG / PROD
 
----
+## Root Cause
+<!-- 1–2 câu: bug xảy ra ở đâu, tại sao -->
 
-## 1. Root Cause
-
-> Mô tả ngắn gọn: bug xảy ra ở đâu, tại sao.
-
-**Root cause:** _[1–2 câu]_
-
-**SA5 RCA đã chạy:** Yes / No _(bắt buộc với S1/S2)_
-
----
-
-## 2. Fix Approach
-
+## Checklist
 - [ ] Fix đúng root cause, không phải workaround
-- [ ] Xác định scope ảnh hưởng — fix này có impact gì ngoài điểm bug không?
-- [ ] Không introduce regression (review các module liên quan)
-
-**Approach:** _[Mô tả cách fix ngắn gọn]_
-
----
-
-## 3. AI Usage
-
-**AI tool đã dùng:** Cursor / Claude / ChatGPT / Copilot / Không dùng
-
-- [ ] Tất cả commit có tag `[AI]` / `[HUMAN]` / `[MIX]`
-
----
-
-## 4. Testing
-
-- [ ] Steps to reproduce đã verify → bug không còn reproduce được
-- [ ] SA4: Ít nhất 2 related attack vectors đã thử (tránh tương tự bug này)
+- [ ] SA5 RCA đã chạy _(bắt buộc với S1/S2)_
+- [ ] Steps to reproduce đã verify — bug không còn reproduce được
 - [ ] Regression test: các luồng liên quan vẫn pass
-- [ ] Unit test cho case này đã thêm (tránh bug tái phát)
+- [ ] Commit tags đúng [AI] / [HUMAN] / [MIX]
 
-**Steps to reproduce (để reviewer verify):**
-1.
-2.
-3.
+## Notes cho Reviewer
+<!-- Steps to reproduce để reviewer verify, context cần biết -->
+```
 
 ---
 
-## 5. Checklist Submit
+## Automated gates (hệ thống tự enforce — không cần check thủ công)
 
-- [ ] Tất cả commit có tag `[AI]` / `[HUMAN]` / `[MIX]`
-- [ ] Branch đã rebase/merge latest
-- [ ] Self-review diff — không có unrelated change
-- [ ] Comment rõ trong ticket: root cause + fix approach
-
-```
+| Gate | Kết quả nếu fail |
+|---|---|
+| Commit thiếu `[AI/HUMAN/MIX]` tag | Block push |
+| SonarQube quality gate | Block merge |
+| CI pipeline fail | Block merge |
 
 ---
 
 ## Setup trên GitLab
 
 ```bash
-# Tạo file trong repo
-.gitlab/merge_request_templates/bugfix.md
-
+# Copy nội dung MR Template ở trên vào:
+# .gitlab/merge_request_templates/bugfix.md
 # Khi tạo MR → chọn template "bugfix" từ dropdown
 ```
 
@@ -81,5 +51,5 @@
 
 ## Liên kết
 
-- [MR Template Feature](gitlab-mr-template.md) — Template đầy đủ cho feature
-- [Dev AI Testing Playbook](../frameworks/dev-ai-testing-playbook.md) — SA0–SA5
+- [MR Template Feature](gitlab-mr-template.md)
+- [Dev AI Testing Playbook](../frameworks/dev-ai-testing-playbook.md) — SA5 RCA
