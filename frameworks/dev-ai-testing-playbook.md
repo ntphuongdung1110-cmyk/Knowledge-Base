@@ -308,12 +308,14 @@ Quality và AI compliance được enforce qua 3 lớp — không phụ thuộc 
 
 ### Lớp 1 — Automated Gates (hệ thống tự block, không bypass được)
 
-| Gate | Tool | Kết quả nếu fail |
+Chỉ cần 2 gates. SonarQube Quality Gate đã bao gồm coverage threshold — không cần check riêng.
+
+| Gate | Enforce bằng | Fail → |
 |---|---|---|
 | Commit thiếu `[AI/HUMAN/MIX]` tag | GitLab Push Rule | Block push |
-| SonarQube quality gate fail | CI/CD | Block merge |
-| Unit test coverage < 90% | CI/CD | Block merge |
-| Pipeline CI fail | GitLab | Block merge |
+| SonarQube Quality Gate fail | CI job | Block merge |
+
+> **Cấu hình SonarQube Quality Gate:** bật threshold coverage ≥90%, no new critical/blocker issues. CI pipeline là cơ chế chạy SonarQube — không phải gate riêng.
 
 ### Lớp 2 — MR Checklist (5 items, < 3 phút)
 

@@ -34,8 +34,9 @@
 | Gate | Kết quả nếu fail |
 |---|---|
 | Commit thiếu `[AI/HUMAN/MIX]` tag | Block push |
-| SonarQube quality gate | Block merge |
-| CI pipeline fail | Block merge |
+| SonarQube Quality Gate fail | Block merge |
+
+> SonarQube Quality Gate đã bao gồm coverage ≥90% và code quality — không cần gate riêng cho từng thứ.
 
 ---
 
