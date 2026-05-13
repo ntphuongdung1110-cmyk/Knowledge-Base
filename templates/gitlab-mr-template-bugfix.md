@@ -21,7 +21,7 @@
 - [ ] SA5 RCA đã chạy _(bắt buộc với S1/S2)_
 - [ ] Steps to reproduce đã verify — bug không còn reproduce được
 - [ ] Regression test: các luồng liên quan vẫn pass
-- [ ] Commit tags đúng [AI] / [HUMAN] / [MIX]
+- [ ] Commit tags đúng [AI] / [HUMAN]
 
 ## Notes cho Reviewer
 <!-- Steps to reproduce để reviewer verify, context cần biết -->
@@ -33,7 +33,7 @@
 
 | Gate | Kết quả nếu fail |
 |---|---|
-| Commit thiếu `[AI/HUMAN/MIX]` tag | Block push |
+| Commit thiếu `[AI]` hoặc `[HUMAN]` tag | Block push |
 | SonarQube Quality Gate fail | Block merge |
 
 > SonarQube Quality Gate đã bao gồm coverage ≥90% và code quality — không cần gate riêng cho từng thứ.

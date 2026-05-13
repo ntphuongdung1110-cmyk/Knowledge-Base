@@ -17,7 +17,7 @@
 - [ ] Self-review code với AI trước khi tạo MR
 - [ ] Các luồng liên quan đã test (không chỉ happy path)
 - [ ] Không có breaking change chưa thông báo
-- [ ] Commit tags đúng [AI] / [HUMAN] / [MIX]
+- [ ] Commit tags đúng [AI] / [HUMAN]
 
 ## Notes cho Reviewer
 <!-- Điểm cần review kỹ, trade-off đã chọn, context quan trọng -->
@@ -29,7 +29,7 @@
 
 | Gate | Kết quả nếu fail |
 |---|---|
-| Commit thiếu `[AI/HUMAN/MIX]` tag | Block push |
+| Commit thiếu `[AI]` hoặc `[HUMAN]` tag | Block push |
 | SonarQube Quality Gate fail | Block merge |
 
 > SonarQube Quality Gate đã bao gồm coverage ≥90% và code quality — không cần gate riêng cho từng thứ.
