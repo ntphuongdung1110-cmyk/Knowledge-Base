@@ -248,6 +248,60 @@ Logs: [Paste error log nếu có]
 
 ---
 
+## GitLab Commit Convention — Bắt buộc
+
+**Mọi commit phải có tag AI ở đầu commit message.** Đây là cách đo compliance tự động — không cần self-report, không cần điền form.
+
+### Tags
+
+| Tag | Khi nào dùng |
+|---|---|
+| `[AI]` | Toàn bộ code/logic được viết với AI (Cursor, Claude, Copilot) |
+| `[HUMAN]` | Viết tay hoàn toàn, không dùng AI |
+| `[MIX]` | Kết hợp — AI gợi ý, người chỉnh sửa đáng kể |
+
+### Ví dụ
+
+```bash
+git commit -m "[AI] Add voucher validation logic for B2B flow"
+git commit -m "[HUMAN] Fix typo in error message"
+git commit -m "[MIX] Refactor payment handler with Cursor assist"
+```
+
+### Tại sao bắt buộc
+
+- Team và QC Manager cần đo % AI adoption thực tế — không phải cảm tính
+- GitLab tự động từ chối commit không có tag (push rule đã setup)
+- Data này dùng để báo cáo AI effectiveness lên leadership
+
+### Setup Push Rule (Admin GitLab — đã cấu hình)
+
+> **Dành cho Admin:** Vào Project → Settings → Repository → Push Rules → Commit message:
+
+```
+\[(AI|HUMAN|MIX)\]
+```
+
+**Fallback CI** (nếu không có quyền Push Rules) — thêm vào `.gitlab-ci.yml`:
+
+```yaml
+check-ai-tag:
+  stage: .pre
+  script:
+    - |
+      git log origin/$CI_DEFAULT_BRANCH..HEAD --format="%s" | while read msg; do
+        if ! echo "$msg" | grep -qE '\[(AI|HUMAN|MIX)\]'; then
+          echo "❌ Commit thiếu tag: $msg"
+          echo "   Thêm [AI], [HUMAN], hoặc [MIX] vào đầu commit message"
+          exit 1
+        fi
+      done
+  rules:
+    - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
+```
+
+---
+
 ## Checklist hoàn thành pipeline
 
 Trước khi tạo PR hoặc request QC handover:
@@ -259,6 +313,7 @@ Trước khi tạo PR hoặc request QC handover:
 - [ ] SA4: Ít nhất 3 attack vectors đã thử
 - [ ] SA5: Chỉ khi có bug S1/S2 — RCA đã làm
 - [ ] Unit test ≥90% coverage cho code mới/changed (SonarQube)
+- [ ] **Tất cả commit có tag `[AI]`, `[HUMAN]`, hoặc `[MIX]`**
 - [ ] DoR checklist đã điền đủ
 
 ---
