@@ -7,38 +7,117 @@
 
 ## Mục tiêu
 
-| Câu hỏi | Chiều đo |
-|---|---|
-| Team có thực sự dùng AI không? | Độ phủ sử dụng AI |
-| Dùng AI có nhanh hơn không? | Speed |
-| Dùng AI có tốt hơn không? | Quality |
+Trả lời 3 câu hỏi thực chất:
 
-> Nguyên tắc: **Đo outcome, không đo activity.** Tránh self-report — người dùng quên, điền đại, không chính xác.
+| # | Câu hỏi | Chiều đo |
+|---|---|---|
+| 1 | Team có thực sự dùng AI không? | **Độ phủ sử dụng AI** |
+| 2 | Dùng AI có nhanh hơn không? | **Speed** |
+| 3 | Dùng AI có chất lượng hơn không? | **Quality** |
+
+> **Nguyên tắc:** Đo outcome, không đo activity. Ưu tiên automated signal — tránh self-report vì người dùng quên hoặc điền đại.
+
+---
+
+## Thành viên cần làm gì?
+
+### 👨‍💻 Developer
+
+**Việc 1 — Tag commit message (bắt buộc, cả hai tag):**
+
+```
+[AI]    feat: generate authentication service
+[HUMAN] fix: correct typo in error message
+```
+
+`[AI]` nếu AI generate code/logic chính. `[HUMAN]` nếu tự viết toàn bộ. **Thiếu tag → Push Rule reject, không push được.**
+
+**Việc 2 — Điền 1 trường khi close issue trên Redmine:**
+
+| Trường | Giá trị |
+|---|---|
+| `AI Used` | Yes / No |
+
+---
+
+### 📋 BA / PO
+
+**Điền 2 trường khi close issue:**
+
+| Trường | Giá trị |
+|---|---|
+| `AI Used` | Yes / No |
+| `Cần clarify sau khi viết` | Yes / No |
+
+---
+
+### 🧪 QC
+
+**Điền 2 trường khi close bug:**
+
+| Trường | Giá trị |
+|---|---|
+| `AI Used` | Yes / No |
+| `Bug Source` | Dev / Requirement / Test miss |
+
+---
+
+### 🔒 Security
+
+**Điền 1 trường khi close issue:**
+
+| Trường | Giá trị |
+|---|---|
+| `AI Used` | Yes / No |
+
+---
+
+### 🔍 QA
+
+Không điền thêm trường. Tổng hợp Sprint AI Report cuối mỗi sprint (15–20 phút).
 
 ---
 
 ## 1. Độ phủ sử dụng AI
 
-### Cách đo (tự động, không cần self-report)
+Mục tiêu: biết được bao nhiêu % công việc thực sự có AI tham gia.
 
-**Commit Tag — Bắt buộc mọi commit:**
+### Cách đo — Commit Tag (tự động, Dev)
 
-| Tag | Ý nghĩa |
+Mọi commit **bắt buộc** có tag ở đầu message. GitLab Push Rule tự reject nếu thiếu.
+
+| Tag | Khi nào dùng |
 |---|---|
 | `[AI]` | AI generate code/logic chính trong commit (dù có chỉnh sửa thêm) |
-| `[HUMAN]` | Tự viết toàn bộ, AI không generate logic — kể cả dùng autocomplete |
+| `[HUMAN]` | Tự viết toàn bộ — AI không generate logic, kể cả dùng autocomplete |
 
-Commit không có tag → GitLab Push Rule tự động reject, không push được.
-
-**Setup Push Rule (Admin GitLab):**
+**Metric chính:**
 
 ```
-Regex: \[(AI|HUMAN)\]
+AI Coverage Rate = số story có ít nhất 1 commit [AI] / tổng story × 100%
 ```
 
-Vào: Project → Settings → Repository → Push Rules → Commit message
+> Đo ở cấp **story**, không cấp commit — tránh inflate bằng nhiều commit nhỏ.
 
-**Fallback CI** (nếu không có quyền Push Rules):
+**HUMAN Rate** = phần còn lại → dùng để phát hiện ai chưa adopt AI.
+
+### Cách đo — AI Task Coverage (Redmine, tất cả roles)
+
+```
+AI Task Coverage = issue có AI Used = Yes / tổng issue đã close × 100%
+```
+
+Bổ sung cho AI Coverage Rate — capture được BA, QC, Security dùng AI nhưng không commit code.
+
+### Setup Push Rule trên GitLab
+
+Project → Settings → Repository → Push Rules → Commit message:
+
+```
+\[(AI|HUMAN)\]
+```
+
+**Fallback CI** nếu không có quyền Push Rules — thêm vào `.gitlab-ci.yml`:
 
 ```yaml
 check-ai-tag:
@@ -47,7 +126,7 @@ check-ai-tag:
     - |
       git log origin/$CI_DEFAULT_BRANCH..HEAD --format="%s" | while read msg; do
         if ! echo "$msg" | grep -qE '\[(AI|HUMAN)\]'; then
-          echo "❌ Commit thiếu tag: $msg"
+          echo "❌ Commit thiếu tag: $msg — thêm [AI] hoặc [HUMAN]"
           exit 1
         fi
       done
@@ -55,187 +134,249 @@ check-ai-tag:
     - if: '$CI_PIPELINE_SOURCE == "merge_request_event"'
 ```
 
-**Metric chính:**
+### Alert threshold
 
-```
-AI Coverage Rate = số story có ≥1 commit [AI] / tổng story hoàn thành × 100%
-```
-
-Đo ở story level — tránh gameable khi dev tạo nhiều commit [AI] nhỏ trên story không dùng AI thực sự.
-
-**Alert:**
-- Warning: AI Coverage Rate < 60% / sprint
-- Critical: AI Coverage Rate < 40% / sprint
+| Metric | Warning | Critical |
+|---|---|---|
+| AI Coverage Rate | < 60% | < 40% |
+| AI Task Coverage | < 50% | < 30% |
 
 ---
 
 ## 2. Speed — Dùng AI có nhanh hơn không?
 
-### Metrics & nguồn dữ liệu
+### Metrics
 
-| Metric | Công thức | Source | Owner |
-|---|---|---|---|
-| Dev Cycle Time | `MR merged_at − MR created_at` (giờ) | GitLab API | Dev Lead |
-| Full Story Cycle Time | Từ `In Progress → Done` (ngày) | Redmine Journal API | QC Manager |
-| Story Throughput | Số story Done / sprint | Redmine | Scrum Master |
+| Metric | Định nghĩa | Source |
+|---|---|---|
+| MR Cycle Time | `merged_at − created_at` (giờ) | GitLab API |
+| Dev Cycle Time | `In Progress → Ready for QC` (ngày) | Redmine journal |
+| Full Story Cycle Time | `In Progress → Done` (ngày) | Redmine journal |
+| Story Throughput | Số story Done / sprint | Redmine |
 
-> Tách Dev Cycle Time và Full Story Cycle Time để tránh QC backlog ảnh hưởng đến dev metrics.
+> **Dev Cycle Time** đo tốc độ dev thuần túy.
+> **Full Story Cycle Time** bao gồm cả thời gian QC — tách riêng để tránh metric dev bị ảnh hưởng bởi QC backlog.
 
 ### Cách lấy dữ liệu
 
-**GitLab API — Dev Cycle Time:**
+**GitLab API — MR Cycle Time:**
+
 ```python
 # GET /projects/:id/merge_requests?state=merged
 cycle_time_hours = (mr["merged_at"] - mr["created_at"]).total_seconds() / 3600
 ```
 
-**Redmine — Full Story Cycle Time:**
+**Redmine Journal API — Dev Cycle Time:**
+
 ```
 GET /issues/{id}.json?include=journals
-# Tìm journal có prop_key = "status_id", value = closed_id
-# Lấy created_on của journal đó
+→ Tìm prop_key = "status_id"
+→ Start: chuyển sang "In Progress"
+→ End:   chuyển sang "Ready for QC"
 ```
 
-### Baseline & target
+### Baseline & Target
 
-| Metric | Baseline | Target sau 3 tháng |
+> **Bắt buộc:** Pull baseline 2 sprint gần nhất trước khi triển khai. Không có baseline = không đo được cải thiện.
+
+| Metric | Target (sau 3 tháng) | Owner |
 |---|---|---|
-| Dev Cycle Time | Đo 2 sprint trước khi apply AI | Giảm ≥20% |
-| Full Story Cycle Time | Đo 2 sprint trước khi apply AI | Giảm ≥15% |
-| Story Throughput | Đo sprint hiện tại | Tăng ≥15% |
+| MR Cycle Time | Giảm ≥ 20% vs baseline | Dev Lead |
+| Dev Cycle Time | Giảm ≥ 15% vs baseline | Dev Lead |
+| Story Throughput | Tăng ≥ 15% vs baseline | QC Manager |
 
-> **Bắt buộc:** Pull baseline data 2 sprint gần nhất TRƯỚC khi apply AI workflow. Không có baseline = không đo được improvement.
+### Alert threshold
 
-**Alert:**
-- Warning: Story Throughput giảm >10% so baseline 2 sprint liên tiếp
+| Metric | Warning | Critical |
+|---|---|---|
+| MR Cycle Time | Tăng > 30% vs baseline | Tăng > 50% vs baseline |
 
 ---
 
-## 3. Quality — Dùng AI có tốt hơn không?
+## 3. Quality — Dùng AI có chất lượng hơn không?
 
-### Metrics & nguồn dữ liệu
+### Metrics
 
-| Metric | Công thức | Source |
-|---|---|---|
-| Bug Rate / Story | Số bug / số story sprint | Redmine |
-| Bug Escape Rate | Bug tại STG+PROD / (Dev self-found + STG+PROD bugs) × 100% | Redmine |
-| Code Coverage | % line/branch covered | SonarQube |
-| Critical Bug Count | Số bug S1/S2 / sprint | Redmine |
+| Metric | Định nghĩa | Source | Owner |
+|---|---|---|---|
+| Bug Rate / Story | Số bug / số story / sprint | Redmine | QC Manager |
+| Bug Escape Rate | Bug ở STG+PROD / (bug Dev tự tìm + bug STG+PROD) × 100% | Redmine | QC Manager |
+| Bug Source: Dev | Bug do Dev code sai / tổng bug × 100% | Redmine — QC field | QC Manager |
+| Bug Source: Requirement | Bug do spec chưa rõ / tổng bug × 100% | Redmine — QC field | QC Manager |
+| Bug Source: Test Miss | Bug QC bỏ sót / tổng bug × 100% | Redmine — QC field | QC Manager |
+| Code Coverage | % line/branch covered | SonarQube | Dev Lead |
+| Critical Bug Count | Số bug S1/S2 / sprint | Redmine | QC Manager |
 
-> **Bug Escape Rate:** Chỉ tính bug phát hiện SAU khi handover QC. Bug dev tự tìm trong quá trình làm không tính là escaped.
+> **Bug Escape Rate:** Bug Dev tự tìm trước QC handover **không tính** vào escape. Chỉ tính bug phát hiện tại STG hoặc PROD sau khi đã handover QC.
 
-### SonarQube Quality Gate
+> **Bug Source:** QC điền khi close bug — phân tích gốc rễ để biết AI đang giúp hay gây vấn đề ở giai đoạn nào (code / spec / test).
 
-Gate duy nhất cho code quality — đã bao gồm coverage threshold + no new critical issues.
+### Automated Quality Gate — SonarQube
 
-| Sprint | Mode |
-|---|---|
-| Sprint 1–2 | Warn only (không block merge — legacy codebase cần grace period) |
-| Sprint 3+ | Block merge nếu fail |
+CI job chạy SonarQube sau mỗi MR. **Fail → không merge được.**
 
-Cấu hình: coverage ≥90%, no new critical/blocker issues.
+Cấu hình Quality Gate: **coverage ≥ 90%** + **no new critical/blocker issues**
+
+> SonarQube là single source of truth cho code quality. Không cần gate riêng cho coverage.
+
+**Grace period:** Sprint 1–2: warn only → Sprint 3 trở đi: block merge.
 
 ### Target
 
-| Metric | Target |
-|---|---|
-| Bug Rate / Story | Giảm ≥30% so baseline |
-| Bug Escape Rate | ≤20% (Warning >20%, Critical >35%) |
-| Code Coverage | ≥90% (enforce qua SonarQube Gate) |
-| Critical Bug (S1/S2) | Giảm ≥50% so 2025 |
+| Metric | Target | So sánh với |
+|---|---|---|
+| Bug Rate / Story | Giảm ≥ 30% | Baseline T1–T2/2026 |
+| Bug Escape Rate | Giảm ≥ 20% | Baseline T1–T2/2026 |
+| Code Coverage | ≥ 90% | Enforce tự động |
+| Critical Bug S1/S2 | Giảm ≥ 50% | Năm 2025 |
+
+### Alert threshold
+
+| Metric | Warning | Critical |
+|---|---|---|
+| Bug Escape Rate | > 20% | > 35% |
+| Critical Bug / sprint | > 2 | > 4 |
+| Bug Source: Dev | > 60% liên tục 2 sprint | — |
 
 ---
 
-## 4. Evidence — Lưu ở đâu, gì cần có
+## 4. Evidence — Lưu ở đâu, cần có gì
 
-Evidence **KHÔNG** điền vào MR — evidence tạo ra trong lúc làm việc, lưu trong **Redmine ticket comment**.
+Evidence **không điền vào MR** — được tạo ra trong lúc làm việc, lưu trong **Redmine ticket comment**.
 
-| Bước SA | Evidence tối thiểu trong ticket comment |
+| Bước | Evidence tối thiểu trong ticket comment |
 |---|---|
 | SA0 | 3–5 dòng: làm gì / thay đổi ở đâu / ảnh hưởng đến đâu |
-| SA1 | List điểm đã clarify + tên BA/PO confirm + ngày |
-| SA2 | Risk matrix: High / Medium / Low kèm lý do |
+| SA1 | Điểm đã clarify + tên BA/PO confirm + ngày |
+| SA2 | Risk matrix: High / Medium / Low + lý do ngắn |
 | SA3 | List test scenarios + pass/fail |
-| SA4 | 3+ attack vectors đã thử + kết quả |
-| SA5 | RCA summary _(chỉ khi có bug S1/S2)_ |
+| SA4 | 2+ attack vectors phù hợp risk profile + kết quả |
+| SA5 | RCA summary *(chỉ khi bug S1/S2)* |
 
-**Trong MR description — chỉ cần:**
-- Ticket reference (#ID)
-- Notes cho reviewer (context, trade-off, steps to reproduce nếu là bug fix)
+**Trong MR description — chỉ cần 3 thứ:**
+
+1. Ticket reference (#ID)
+2. AI self-review result (1 dòng)
+3. Notes cho reviewer (context, trade-off, điểm cần review kỹ)
 
 ---
 
 ## 5. Dashboard & Báo cáo
 
-### Nguồn dữ liệu → Dashboard
+### Nguồn dữ liệu
+
+| Source | Metrics |
+|---|---|
+| GitLab API | MR cycle time, AI Coverage Rate |
+| Redmine API | Bug rate, throughput, Dev/Full cycle time, AI Task Coverage, Bug Source |
+| SonarQube API | Code coverage, quality gate history |
+
+Tích hợp vào Redmine Dashboard hiện có (Python + Streamlit, `localhost:8501`).
+
+### Sprint AI Report — Template cho QA tổng hợp
 
 ```
-GitLab API   → Dev Cycle Time, AI Coverage Rate (story level)
-Redmine API  → Bug Rate, Story Throughput, Full Story Cycle Time
-SonarQube    → Code Coverage, Quality Gate history
+Sprint AI Report — [Tên Sprint]  |  [dd/mm/yyyy]
+Người tổng hợp: [name]
+
+⚡ TỐC ĐỘ
+  Dev Cycle Time (avg):         __ ngày   (sprint trước: __ ngày)
+  MR Cycle Time (avg):          __h       (sprint trước: __h)
+  Story Throughput:             __        (sprint trước: __)
+
+🎯 CHẤT LƯỢNG
+  Bug Rate/Story:               __        (sprint trước: __)
+  Bug Escape Rate:              __%       (target ≤ 20%)
+  Bug Source — Dev:             __%       (cờ đỏ nếu > 60%)
+  Bug Source — Requirement:     __%
+  Bug Source — Test miss:       __%
+  Critical Bug S1/S2:           __        (target = 0)
+  Code Coverage:                __%       (SonarQube)
+
+📊 ĐỘ PHỦ AI
+  AI Coverage Rate (story):     __%       (sprint trước: _%)
+  AI Task Coverage (all roles): __%       (sprint trước: _%)
+
+NHẬN XÉT
+  AI đang giúp ích rõ nhất ở:
+  Chưa thấy cải thiện ở:
+  Action sprint tới:
 ```
 
-Dùng Redmine Dashboard hiện có (Python + Streamlit tại `localhost:8501`) — thêm GitLab API và SonarQube API vào cùng.
+> **Đọc kết quả:** Không cần tính điểm. Nhìn vào xu hướng **3 sprint liên tiếp** của từng dimension.
 
-### Báo cáo bi-weekly lên leadership
+### Cờ đỏ — cần thảo luận ngay trong Retro
+
+- **Bug Escape Rate tăng** trong khi AI Coverage tăng → AI đang ảnh hưởng tiêu cực đến chất lượng
+- **Bug Source: Dev > 60%** liên tục 2 sprint → cần review lại cách dev dùng AI để generate code
+- **AI Coverage Rate không tăng** sau sprint 3 → rào cản adoption cần được xử lý
+- **Dev Cycle Time tăng** nhưng Story Throughput giảm → team đang bị overhead bởi quy trình mới
+
+### Format báo cáo bi-weekly lên leadership
 
 ```
-Sprint N (DD/MM – DD/MM):
+Sprint N (DD/MM – DD/MM)
 
-Độ phủ AI
-└── AI Coverage Rate: X% story (↑/↓ Y% vs sprint trước)
+ĐỘ PHỦ AI
+├── AI Coverage Rate:    X% story có [AI] commit  (↑/↓ vs sprint trước)
+└── AI Task Coverage:    X% task toàn team         (↑/↓ vs sprint trước)
 
-Speed
-├── Dev Cycle Time:       X giờ  (↑/↓ Y% vs baseline)
-├── Full Story Cycle Time: X ngày (↑/↓ Y% vs baseline)
-└── Story Throughput:     X story (↑/↓ Y% vs baseline)
+SPEED
+├── MR Cycle Time:       X giờ  (↑/↓ Y% vs baseline)
+├── Dev Cycle Time:      X ngày (↑/↓ Y% vs baseline)
+└── Story Throughput:    X story (↑/↓ Y% vs baseline)
 
-Quality
-├── Bug Rate/Story:    X bug/story (↑/↓ Y%)
-├── Bug Escape Rate:   X%         (↑/↓ Y%)
-├── Code Coverage:     X%         (SonarQube)
-└── Critical Bug S1/S2: X bug
+QUALITY
+├── Bug Rate/Story:      X bug/story  (↑/↓ Y%)
+├── Bug Escape Rate:     X%           (↑/↓ Y%)
+├── Critical Bug S1/S2:  X bugs
+├── Code Coverage:       X%           (SonarQube)
+└── SonarQube Gate:      Pass / Warn / Fail
 
-Automated Gates
-├── Push Rule:         X commit blocked (thiếu tag)
-└── SonarQube Gate:    Pass / Warn / Block
+ACTION ITEMS
+└── [Các điểm cần xử lý dựa trên alert threshold]
 ```
 
 ---
 
 ## 6. Triển khai
 
-### Tuần 1 — Align & Baseline (trước khi bật gate)
-- [ ] Align với Dev Leads về commit convention và evidence format
-- [ ] Pull baseline data 2 sprint gần nhất (Dev Cycle Time, Bug Rate, Story Throughput)
-- [ ] Demo workflow cho team — giải thích tại sao từng gate cần thiết
+### Tuần 1 — Chuẩn bị (trước khi setup bất cứ thứ gì)
 
-### Tuần 2 — Setup Gates (1 lần, chạy mãi)
-- [ ] GitLab Push Rule: regex `\[(AI|HUMAN)\]`
-- [ ] SonarQube Quality Gate: bật threshold coverage ≥90%, block on new critical
+- [ ] Pull baseline data 2 sprint gần nhất (GitLab + Redmine + SonarQube)
+- [ ] Align với Dev Leads: commit convention, evidence format, MR template
+- [ ] Demo quy trình cho team
+
+### Tuần 2 — Setup automated gates
+
+- [ ] GitLab Push Rule: `\[(AI|HUMAN)\]`
+- [ ] SonarQube Quality Gate: coverage ≥ 90%, **warn only** (chưa block)
 - [ ] GitLab MR Templates: `default.md` (feature) + `bugfix.md`
-- [ ] Kết nối GitLab API và SonarQube API vào Dashboard
+- [ ] Thêm `AI Used` và `Bug Source` custom fields vào Redmine
 
-### Sprint 1–2 — Grace Period
-- [ ] SonarQube: warn only, không block merge
-- [ ] Theo dõi AI Coverage Rate — chưa enforce target
-- [ ] Thu thập feedback từ dev về friction
+### Sprint 1–2 — Giai đoạn làm quen
 
-### Sprint 3 — Full Enforcement
-- [ ] SonarQube: chuyển sang block merge nếu fail
-- [ ] Bắt đầu so sánh metrics vs baseline
+- [ ] SonarQube warn only, chưa block merge
+- [ ] Sampling audit lần đầu (xem mục QA)
+- [ ] Thu thập feedback, điều chỉnh nếu cần
+
+### Sprint 3 trở đi — Full enforcement
+
+- [ ] SonarQube chuyển sang block merge
+- [ ] First bi-weekly report với trend vs baseline
 
 ### Tháng 3 — Review KPI
-- [ ] Speed: Dev Cycle Time giảm ≥20%, Throughput tăng ≥15%
-- [ ] Quality: Bug Rate giảm ≥30%, Bug Escape Rate ≤20%
-- [ ] Độ phủ AI: Coverage Rate ≥80%
-- [ ] Điều chỉnh SonarQube threshold nếu cần
+
+- [ ] AI Coverage Rate ≥ 80%
+- [ ] Speed: MR cycle time ↓ 20%, throughput ↑ 15%
+- [ ] Quality: Bug rate ↓ 30%, escape rate ↓ 20%
+- [ ] Điều chỉnh threshold nếu cần
 
 ---
 
-## Liên kết
+## Tài liệu liên quan
 
-- [Dev AI Testing Playbook](dev-ai-testing-playbook.md) — SA0–SA5 chi tiết + GitLab commit convention
-- [Dev Test DoR](dev-test-dor.md) — Definition of Ready trước khi handover QC
-- [MR Template Feature](../templates/gitlab-mr-template.md) — Copy vào GitLab
-- [MR Template Bug Fix](../templates/gitlab-mr-template-bugfix.md) — Copy vào GitLab
+- **Dev AI Testing Playbook** — SA0–SA5, commit convention, push rule setup
+- **Dev Test DoR** — Definition of Ready trước khi handover QC
+- **MR Template Feature** — `.gitlab/merge_request_templates/default.md`
+- **MR Template Bug Fix** — `.gitlab/merge_request_templates/bugfix.md`
