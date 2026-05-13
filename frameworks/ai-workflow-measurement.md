@@ -41,6 +41,22 @@ Pull từ GitLab API theo sprint/tháng → báo cáo trend.
 CI job chạy SonarQube sau mỗi MR. Fail → không merge được.
 SonarQube Quality Gate bao gồm: coverage ≥90% + no new critical/blocker issues.
 
+**MR Checklist — Dev tự xác nhận khi tạo MR (< 3 phút):**
+
+- [ ] SA pipeline evidence đã ghi trong ticket comment
+- [ ] Self-review code với AI trước khi tạo MR
+- [ ] Các luồng liên quan đã test (không chỉ happy path)
+- [ ] Không có breaking change chưa thông báo
+- [ ] Commit tags đúng `[AI]` / `[HUMAN]` / `[MIX]`
+
+Xem template đầy đủ: [MR Template Feature](../templates/gitlab-mr-template.md) | [MR Template Bug Fix](../templates/gitlab-mr-template-bugfix.md)
+
+**Metric từ MR Checklist:**
+```
+Checklist Completion Rate = số MR checklist đầy đủ / tổng MR × 100%
+```
+Verify qua sampling audit — không track tự động từng item.
+
 **Sampling Audit — Lớp kiểm tra thực chất:**
 Mỗi sprint, QC Manager chọn ngẫu nhiên **3 MR** và hỏi dev trong sprint retro:
 > *"Walk me through MR này — SA1 clarify gì, SA3 tìm ra risk nào?"*
