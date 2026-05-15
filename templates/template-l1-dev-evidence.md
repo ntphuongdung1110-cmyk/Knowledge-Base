@@ -44,6 +44,37 @@
 
 ---
 
+### AI-Assisted Testing Summary (SA0–SA4)
+
+> Output của từng SA step — QC dùng để không phải chạy lại từ đầu.
+
+**SA0 — Scope Context:**
+- Ticket hiểu như thế nào: [1–2 câu mô tả scope]
+- Impact estimate: [module / API / DB bị ảnh hưởng]
+
+**SA1 — Requirement Clarifications:**
+
+| Ambiguity found | Resolution | Confirmed by |
+|---|---|---|
+| [mô tả mâu thuẫn / assumption ẩn] | [đã resolve thế nào] | [BA/PO tên] — [ngày] |
+
+_Không có → ghi: "Spec rõ ràng, không cần clarify."_
+
+**SA2 — Risk Matrix:**
+
+| Risk | Severity | TC cover |
+|---|---|---|
+| [mô tả risk] | High / Med / Low | [TC ID hoặc "Manual probe"] |
+
+_Copy từ SA2 Risk Scout output — note rõ High risk nào đã test._
+
+**SA4 — Bug Hunter Vectors Tried:**
+- [Boundary condition / Negative path / Edge case]: [kết quả]
+
+_Không chạy SA4 → ghi: "SA4 skip — ticket low risk theo SA2."_
+
+---
+
 ### Dev Self-Test
 
 **TC File:** [SharePoint URL]

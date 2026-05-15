@@ -1,0 +1,197 @@
+{
+  "/Users/dung/knowledge-base/2026-05-07.md": {
+    "mtime": 1778129423.3059835,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/dung/knowledge-base/SETUP.md": {
+    "mtime": 1776771858.1894288,
+    "ast_hash": "0a11257ef24f390e5398d9c930cabaa9",
+    "semantic_hash": "0a11257ef24f390e5398d9c930cabaa9"
+  },
+  "/Users/dung/knowledge-base/2026-04-22.md": {
+    "mtime": 1776828647.3694918,
+    "ast_hash": "d41d8cd98f00b204e9800998ecf8427e",
+    "semantic_hash": "d41d8cd98f00b204e9800998ecf8427e"
+  },
+  "/Users/dung/knowledge-base/Home.md": {
+    "mtime": 1776771663.881609,
+    "ast_hash": "e8f7ab309f95d0d81464e05301ddfe64",
+    "semantic_hash": "e8f7ab309f95d0d81464e05301ddfe64"
+  },
+  "/Users/dung/knowledge-base/Memory.md": {
+    "mtime": 1776829404.298488,
+    "ast_hash": "e83f681359ebc771ca9c2d965409d5a5",
+    "semantic_hash": "e83f681359ebc771ca9c2d965409d5a5"
+  },
+  "/Users/dung/knowledge-base/CLAUDE.md": {
+    "mtime": 1776772053.0596032,
+    "ast_hash": "4c5f3eba28874f942cc8e8d13c1f152a",
+    "semantic_hash": "4c5f3eba28874f942cc8e8d13c1f152a"
+  },
+  "/Users/dung/knowledge-base/roster/team-roster.md": {
+    "mtime": 1778037248.5311704,
+    "ast_hash": "06b2c36cd5e8fc5ca34ce35d09660979",
+    "semantic_hash": "06b2c36cd5e8fc5ca34ce35d09660979"
+  },
+  "/Users/dung/knowledge-base/roster/project-roster.md": {
+    "mtime": 1776829396.2457342,
+    "ast_hash": "f291cf5473047c5b80583ab0293766b3",
+    "semantic_hash": "f291cf5473047c5b80583ab0293766b3"
+  },
+  "/Users/dung/knowledge-base/actions/Action-Tracker.md": {
+    "mtime": 1778235994.4072194,
+    "ast_hash": "1a9b7a50581581bacf510cb2f9b149bb",
+    "semantic_hash": "1a9b7a50581581bacf510cb2f9b149bb"
+  },
+  "/Users/dung/knowledge-base/templates/gitlab-mr-template.md": {
+    "mtime": 1778650236.8616807,
+    "ast_hash": "9c6596057e71f46dc0d1d881a2bbccee",
+    "semantic_hash": "9c6596057e71f46dc0d1d881a2bbccee"
+  },
+  "/Users/dung/knowledge-base/templates/template-l1-dev-evidence.md": {
+    "mtime": 1778817214.2342408,
+    "ast_hash": "6b7ec4d2f1c403c268908fb12ce3112d",
+    "semantic_hash": "6b7ec4d2f1c403c268908fb12ce3112d"
+  },
+  "/Users/dung/knowledge-base/templates/template-l2-qc-summary.md": {
+    "mtime": 1778580920.6559322,
+    "ast_hash": "55806f72be934f9a203df589fbc2a24a",
+    "semantic_hash": "55806f72be934f9a203df589fbc2a24a"
+  },
+  "/Users/dung/knowledge-base/templates/template-l3-qa-smoke.md": {
+    "mtime": 1778578671.1395152,
+    "ast_hash": "48896bf8a7a03cda1811e8bafe90cc64",
+    "semantic_hash": "48896bf8a7a03cda1811e8bafe90cc64"
+  },
+  "/Users/dung/knowledge-base/templates/daily-brief.md": {
+    "mtime": 1776771836.202922,
+    "ast_hash": "f5f0f774b16ee2902016407210a91a82",
+    "semantic_hash": "f5f0f774b16ee2902016407210a91a82"
+  },
+  "/Users/dung/knowledge-base/templates/report-dev-feedback.md": {
+    "mtime": 1777870065.7420769,
+    "ast_hash": "e6fb47ff119ef2816caeef618843a3e2",
+    "semantic_hash": "e6fb47ff119ef2816caeef618843a3e2"
+  },
+  "/Users/dung/knowledge-base/templates/sprint-review.md": {
+    "mtime": 1776771827.6679578,
+    "ast_hash": "042fb7e4f9298d89913326f779ed860d",
+    "semantic_hash": "042fb7e4f9298d89913326f779ed860d"
+  },
+  "/Users/dung/knowledge-base/templates/1on1.md": {
+    "mtime": 1776771818.1459134,
+    "ast_hash": "73c892d0368aa1b85235c25ed87ece3d",
+    "semantic_hash": "73c892d0368aa1b85235c25ed87ece3d"
+  },
+  "/Users/dung/knowledge-base/templates/report-weekly-quality.md": {
+    "mtime": 1778129325.0633667,
+    "ast_hash": "8ff21881acb8a0ec888aea0e4f339391",
+    "semantic_hash": "8ff21881acb8a0ec888aea0e4f339391"
+  },
+  "/Users/dung/knowledge-base/templates/report-qa-audit.md": {
+    "mtime": 1778575501.0884311,
+    "ast_hash": "60253daebada073ceed7d020168765b8",
+    "semantic_hash": "60253daebada073ceed7d020168765b8"
+  },
+  "/Users/dung/knowledge-base/templates/meeting-notes.md": {
+    "mtime": 1776771805.9957647,
+    "ast_hash": "a41b64b3a699aa092a1927eb6566c417",
+    "semantic_hash": "a41b64b3a699aa092a1927eb6566c417"
+  },
+  "/Users/dung/knowledge-base/templates/gitlab-mr-template-bugfix.md": {
+    "mtime": 1778650242.6522868,
+    "ast_hash": "138b6550ef21893380290b685b76343e",
+    "semantic_hash": "138b6550ef21893380290b685b76343e"
+  },
+  "/Users/dung/knowledge-base/templates/call-summary.md": {
+    "mtime": 1776771810.6271508,
+    "ast_hash": "73359c0a44804a5f544b81141ba15b9e",
+    "semantic_hash": "73359c0a44804a5f544b81141ba15b9e"
+  },
+  "/Users/dung/knowledge-base/templates/report-post-sweep.md": {
+    "mtime": 1777870051.2108676,
+    "ast_hash": "b7e52f349879ac95e4a98b0974c55314",
+    "semantic_hash": "b7e52f349879ac95e4a98b0974c55314"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-skills-framework.md": {
+    "mtime": 1778489215.1112258,
+    "ast_hash": "81b21dd74a910ea4c9d600c9c2811793",
+    "semantic_hash": "81b21dd74a910ea4c9d600c9c2811793"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-job-description.md": {
+    "mtime": 1778217090.185147,
+    "ast_hash": "36b967d429f305af58d69ebabfe1c27e",
+    "semantic_hash": "36b967d429f305af58d69ebabfe1c27e"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-audit-checklist.md": {
+    "mtime": 1778129222.4771805,
+    "ast_hash": "87258a71658c02b51291fb3480246008",
+    "semantic_hash": "87258a71658c02b51291fb3480246008"
+  },
+  "/Users/dung/knowledge-base/frameworks/qc-testing-process.md": {
+    "mtime": 1778139317.9713182,
+    "ast_hash": "705bc7b4d45f01b5536ab9010097ebb9",
+    "semantic_hash": "705bc7b4d45f01b5536ab9010097ebb9"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-process.md": {
+    "mtime": 1778570170.8364096,
+    "ast_hash": "a202b852124e59503d0d78a426d95640",
+    "semantic_hash": "a202b852124e59503d0d78a426d95640"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-quality-standards.md": {
+    "mtime": 1778153077.4950862,
+    "ast_hash": "2c06cca84f85608ba1511927fd4fef5f",
+    "semantic_hash": "2c06cca84f85608ba1511927fd4fef5f"
+  },
+  "/Users/dung/knowledge-base/frameworks/qc-classification-matrix.md": {
+    "mtime": 1778139289.9770076,
+    "ast_hash": "d843252222fb9cead9ae3fac107b7ba6",
+    "semantic_hash": "d843252222fb9cead9ae3fac107b7ba6"
+  },
+  "/Users/dung/knowledge-base/frameworks/dev-ai-testing-playbook.md": {
+    "mtime": 1778650215.5673833,
+    "ast_hash": "992420b4cc2842ef9329351226c9c7d7",
+    "semantic_hash": "992420b4cc2842ef9329351226c9c7d7"
+  },
+  "/Users/dung/knowledge-base/frameworks/process-testing-2026.md": {
+    "mtime": 1778558343.0931156,
+    "ast_hash": "34399e64e8c7fcdd873e5e5cb43c7e19",
+    "semantic_hash": "34399e64e8c7fcdd873e5e5cb43c7e19"
+  },
+  "/Users/dung/knowledge-base/frameworks/qc-sweep-checklist.md": {
+    "mtime": 1778129306.26901,
+    "ast_hash": "7b24f089d20cd5c9e8a0032da64f2deb",
+    "semantic_hash": "7b24f089d20cd5c9e8a0032da64f2deb"
+  },
+  "/Users/dung/knowledge-base/frameworks/1on1-framework.md": {
+    "mtime": 1776771772.8742692,
+    "ast_hash": "fcd7df14c79125dfc474d8ad3ed81b55",
+    "semantic_hash": "fcd7df14c79125dfc474d8ad3ed81b55"
+  },
+  "/Users/dung/knowledge-base/frameworks/release-checklist.md": {
+    "mtime": 1778474149.5824392,
+    "ast_hash": "75e00e87735064789b849461961c5850",
+    "semantic_hash": "75e00e87735064789b849461961c5850"
+  },
+  "/Users/dung/knowledge-base/frameworks/ai-workflow-measurement.md": {
+    "mtime": 1778657129.4727018,
+    "ast_hash": "d5888dfcdca4dce1243071e6f16cb7eb",
+    "semantic_hash": "d5888dfcdca4dce1243071e6f16cb7eb"
+  },
+  "/Users/dung/knowledge-base/frameworks/dev-test-dor.md": {
+    "mtime": 1778139324.067822,
+    "ast_hash": "dd55e2dbe487d482c4e99ab5ffd3b237",
+    "semantic_hash": "dd55e2dbe487d482c4e99ab5ffd3b237"
+  },
+  "/Users/dung/knowledge-base/frameworks/qa-role-definition.md": {
+    "mtime": 1778214454.7893512,
+    "ast_hash": "2467e97021b66119e372e00f2f61a664",
+    "semantic_hash": "2467e97021b66119e372e00f2f61a664"
+  },
+  "/Users/dung/knowledge-base/frameworks/ai-subagent-guide.md": {
+    "mtime": 1776771795.9348223,
+    "ast_hash": "c8346d2e68dd5fe35f00f4093fe79b43",
+    "semantic_hash": "c8346d2e68dd5fe35f00f4093fe79b43"
+  }
+}
