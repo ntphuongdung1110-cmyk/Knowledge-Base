@@ -2,7 +2,7 @@
 
 > **Dành cho AI:** Đây là tài liệu onboarding. Đọc file này ở đầu mỗi session để có đầy đủ context trước khi trả lời bất kỳ câu hỏi nào.
 
-**Cập nhật:** 2026-04-21
+**Cập nhật:** 2026-06-01
 
 ---
 
@@ -17,8 +17,8 @@
 
 | Vai trò | Phạm vi | % thời gian |
 |---|---|---|
-| **QC Manager** | Quản lý QC team 10 người, định nghĩa quality standards toàn PD, SDET scope | 50% |
-| **Technical PM** | Quản lý 30+ đầu mục PD, báo cáo leadership bi-weekly; PM Biệt Đội AI, PM Lumina | 50% |
+| **QA Manager** | Quản lý QA Team (mới), QA Audit governance toàn PD, quality standards, SDET scope | 50% |
+| **Technical PM** | Co-PM PD projects với **Phúc Võ Hoàng** (BOD Technical Assistant); PM Biệt Đội AI, PM Lumina | 50% |
 
 **Hướng phát triển dài hạn:** SDET (Software Development Engineer in Test)
 
@@ -43,30 +43,31 @@
 
 ---
 
-## 3. QC Team — Cấu trúc
+## 3. Cấu trúc QA/QC — Org Mới (05/2026)
 
-### Sơ đồ tổ chức (cấu trúc mới — chốt 04/2026)
-```
-QC Manager: Dung Nguyễn
-├── Voucher Service
-│   ├── Thùy Nguyễn (Senior, Key Person)
-│   └── Hương Nguyễn (Senior)
-├── User Solutions
-│   └── Phú Đồng (Senior, Key Person)
-├── Client Solutions
-│   ├── Duyên Nguyễn (Senior TL)
-│   ├── Tuyến Thân (QC Engineer)
-│   ├── Tuyền Võ (Senior)
-│   ├── Khải Lâm (Junior, từ 26/7/2025)
-│   └── Trâm Võ (từ 03/11/2025)
-└── Automation (Cross-team)
-    └── Thắng Trương (Automation Engineer, từ 30/9/2024)
-```
+> Cấu trúc mới: tách rõ QA Team (Dung quản lý) và QC (Dev Lead quản lý).
 
-### Điểm chú ý quan trọng
-- **Internal Tools** không có QC coverage (Tuyền chuyển sang Campaign từ 02/03/2026)
-- **QA embedded** (6 người) báo cáo Dev Lead về process; Dung define quality standards
-- **Thắng Trương** đang research Applitools Eyes Visual Testing (27/02 → 12/06/2026)
+### QA Team — Dung quản lý trực tiếp
+```
+QA Manager: Dung Nguyễn
+├── Quality Engineer #1 (TBD — đang tuyển)
+└── Quality Engineer #2 (TBD — đang tuyển)
+```
+**Nhiệm vụ:** QA Audit (L1/L2/L3), quality governance toàn PD, standards, metrics
+
+### QC — Dev Lead quản lý
+```
+Voucher Service:    Hương Nguyễn
+User Solutions:     Phú Đồng (Key Person)
+Client Solutions:   Duyên Nguyễn (TL), Tuyến Thân, Tuyền Võ, Trâm Võ
+Automation:         ⚠️ Trống — Thắng Trương nghỉ 05/2026
+```
+**Nhiệm vụ:** Day-to-day testing, sprint-level testing, báo cáo Dev Lead
+
+### Thay đổi nhân sự gần đây
+- **Thắng Trương** — nghỉ việc 05/2026 → automation orphaned
+- **Khải Lâm** — chuyển sang PO 05/2026
+- **Thùy Nguyễn** — chuyển sang BA (IPO project, 04/2026)
 
 ---
 
@@ -120,6 +121,21 @@ AI không thay thế QC mà là **subagent** hỗ trợ từng bước:
 - **PIC của Dung:** #1 AI-assisted SDLC, #4 System Doc Standardization, #14 AI-assisted Test Design
 - **Lịch báo cáo:** 20/04 · 04/05 · 18/05 · 01/06 · 15/06 · 29/06...
 - **Notes:** `~/second-brain/projects/pd-project/notes.md`
+
+### [QA] QA Function — Build team mới
+- **Trạng thái:** 🟡 In Progress — QA Manager solo, đang tuyển QE1 (đăng JD T6/2026)
+- **Hiệu lực:** 2026-05-01 (QA tách khỏi QC, báo cáo về QA Manager)
+- **Roadmap:** `~/knowledge-base/frameworks/qa-roadmap.md` — cập nhật 2026-06-01, 4 phases 2026–2027 + **4 workstreams** xuyên suốt
+- **Engagement model:** QA tham gia **sau khi Dev đưa lên STG** — independent gate, không test lại
+- **Ratio:** 1 QA : ~20 scrum members (2h/story vs 5 mandays/story) — trigger headcount khi vượt liên tục 2 tháng
+- **4 Workstreams:**
+  - WS1 Process & Standards (DoR, DoD, audit flow)
+  - WS2 Audit & Release Gate (L1–L4 + **smoke test pipeline trên STG** + **doc coverage audit auto**)
+  - WS3 Quality Intelligence (weekly report, dashboard quality & risk)
+  - WS4 **AI Quality Governance** (AI defect rate, hallucination rate, % Apply AI per team, AI effort tracking)
+- **Project audit scope (T6):** Voucher Services (GiftPort, Partner Integration) + User Solutions (P2P ZaloGift, UBND–Gotit App) chính thức. Client Solutions (Campaign Custom, Campaign Tool V3, Loyalty/RewardHub) pilot 1–2 tháng → đánh giá T8.
+- **Plan chi tiết:** `~/second-brain/projects/qc-transformation/qa-plan-2026.md`
+- **File gửi sếp:** `~/Work/results/strategy/QA-Chien-Luoc-2026.xlsx` (5 sheets, business language)
 
 ### [QC] QC Transformation 2026
 - **Vai trò:** Lead | **Deadline:** 31/08/2026
@@ -198,7 +214,28 @@ Khi ghi nhận thông tin từ cuộc họp hoặc session:
 
 ---
 
-## 9. Liên kết nhanh
+## 9. Quan hệ giữa 3 thư mục chính
+
+| Thư mục | Vai trò | Quan hệ |
+|---|---|---|
+| `~/knowledge-base/` | **Source of Truth** — process frameworks, audit checklists, templates, team roster | Được tham chiếu bởi second-brain |
+| `~/second-brain/` | **Personal workspace** — meeting notes, 1:1, project notes, personal context | Phụ thuộc knowledge-base (đọc Memory.md đầu session) |
+| `~/Work/` | **Execution** — automation code, audit results, working templates | Copy templates từ knowledge-base (sync thủ công) |
+
+**Luồng dữ liệu:**
+- `knowledge-base/` → `second-brain/`: second-brain đọc Memory.md để lấy context
+- `knowledge-base/templates/` → `Work/templates/`: sync thủ công khi có cập nhật
+- `second-brain/` và `Work/` **không** liên kết trực tiếp với nhau
+- Không có auto-sync — mọi thứ phải update thủ công
+
+**Nguyên tắc chỉnh sửa:**
+- Cập nhật process/standards → sửa `knowledge-base/` trước, rồi sync sang `second-brain/context/` và `Work/templates/` nếu cần
+- Ghi chú cá nhân (họp, 1:1) → chỉ trong `second-brain/meetings/` hoặc `second-brain/people/`
+- Code/execution artifacts → chỉ trong `Work/`
+
+---
+
+## 10. Liên kết nhanh
 
 - [Home](Home.md) — Central hub
 - [Team Roster](roster/team-roster.md) — QC team members
